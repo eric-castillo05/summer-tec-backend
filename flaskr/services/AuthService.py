@@ -2,6 +2,7 @@ from flask_jwt_extended import create_access_token
 from werkzeug.security import generate_password_hash, check_password_hash
 from flaskr.utils.db import db
 from flaskr.models.user import User
+from flaskr.models.coordinadores import Coordinadores
 
 
 class AuthService:
@@ -41,6 +42,9 @@ class AuthService:
         if not user or not check_password_hash(user.password, password):
             return {"error": "Invalid email or password"}, 401
 
-        # Create JWT token
+        user = User.query.filter_by(email=email).first()
+        if not user:
+            user = Coordinadores.query.filter_by(email=email).first()
+
         access_token = create_access_token(identity=user.numero_control)
         return {"access_token": access_token}, 200

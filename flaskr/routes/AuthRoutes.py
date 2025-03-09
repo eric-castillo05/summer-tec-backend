@@ -4,14 +4,12 @@ from flaskr.services import AuthService
 
 auth_bp = Blueprint('auth_bp', __name__)
 
-# Initialize services
 auth_service = AuthService()
 
 @auth_bp.route('/signup', methods=['POST'])
 def signup():
     data = request.get_json()
 
-    # Validate required fields
     required_fields = ['numero_control', 'nombre_completo','email', 'password', 'phone_number']
     if not all(field in data for field in required_fields):
         return jsonify({"error": "Missing required fields"}), 400
@@ -21,9 +19,6 @@ def signup():
     email = data['email']
     password = data['password']
     phone_number = data['phone_number']
-
-    # if not isinstance(ncontrol, str) or len(ncontrol) != 7 or not ncontrol.isdigit():
-    #     return jsonify({"error": "Invalid control number format"}), 400
 
     if '@' not in email:
         return jsonify({"error": "Invalid email format"}), 400
@@ -39,7 +34,6 @@ def signup():
 def login():
     data = request.get_json()
 
-    # Validate required fields
     required_fields = ['email', 'password']
     if not all(field in data for field in required_fields):
         return jsonify({"error": "Missing required fields"}), 400

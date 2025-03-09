@@ -1,9 +1,7 @@
 from threading import Lock
-
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import create_engine
 from sqlalchemy_utils.functions import database_exists, create_database
-
 from flaskr.utils.config import Config
 
 db = SQLAlchemy()
@@ -37,6 +35,7 @@ class Database:
         db.init_app(app)
         with app.app_context():
             self.db.create_all()
+            print(db.metadata.tables.keys())
         self.initialized = True
 
     @property
