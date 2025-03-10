@@ -6,4 +6,4 @@ from .enums import TurnoEnum
 from .enums import StatusEnum
 from .materias import Materias
 from .materias_propuestas import Materias_Propuestas
-from .user import User
+from .estudiante import Estudiante

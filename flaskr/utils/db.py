@@ -35,7 +35,6 @@ class Database:
         db.init_app(app)
         with app.app_context():
             self.db.create_all()
-            print(db.metadata.tables.keys())
         self.initialized = True
 
     @property
