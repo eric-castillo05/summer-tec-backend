@@ -1,9 +1,7 @@
 from threading import Lock
-
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import create_engine
 from sqlalchemy_utils.functions import database_exists, create_database
-
 from flaskr.utils.config import Config
 
 db = SQLAlchemy()

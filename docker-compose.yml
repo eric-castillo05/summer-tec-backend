@@ -1,10 +1,10 @@
 services:
-  flask_app:
+  flaskr:
     build: .
     ports:
-      - 5000:5000
+      - "5000:5000"
     volumes:
-      - .:/flaskr
+      - .:/app
     environment:
-      - FLASK_ENV=development
-      - FLASK_APP=flaskr
+      FLASK_APP: flaskr
+      FLASK_ENV: development
