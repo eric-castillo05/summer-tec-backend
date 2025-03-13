@@ -7,3 +7,4 @@ from .enums import StatusEnum
 from .materias import Materias
 from .materias_propuestas import Materias_Propuestas
 from .estudiante import Estudiante
+from .docentes import Docente
