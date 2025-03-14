@@ -70,7 +70,7 @@ class MateriasPropuestasService:
                 status=StatusEnum[data["status"]],
                 aula_id=data.get("aula_id"),
                 turno=TurnoEnum[data["turno"]],
-                fecha_creacion=datetime.utcnow(),
+                fecha_creacion=datetime.now(),
                 cupo=data["cupo"]
             )
             if id_estudiante:
