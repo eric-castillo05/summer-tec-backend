@@ -1,4 +1,6 @@
 from flask import Blueprint, jsonify, request
+from flask_jwt_extended import jwt_required, get_jwt_identity
+
 from flaskr.services.MateriasPropuestasService import MateriasPropuestasService
 
 materias_propuestas_bp = Blueprint("materias_propuestas_bp", __name__)
@@ -6,10 +8,12 @@ materias_propuestas_bp = Blueprint("materias_propuestas_bp", __name__)
 materiasPropuestasService = MateriasPropuestasService()
 
 @materias_propuestas_bp.route("/materias_propuestas", methods=["GET"])
+@jwt_required()
 def get_materias():
     materias = materiasPropuestasService.get_materias_propuestas()
     return jsonify(materias)
 
+@jwt_required()
 @materias_propuestas_bp.route("/create_materia_propuesta", methods=["POST"])
 def create_materia_propuesta():
     data = request.get_json()
