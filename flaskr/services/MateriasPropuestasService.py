@@ -28,8 +28,8 @@ class MateriasPropuestasService:
                 Docente.nombre_completo.label("profesor"),
                 Materias.nombre_materia,
                 Aula.aula_id.label("aula"),
-                estudiante_alias.nombre_completo.label("creador_estudiante"),
-                coordinador_alias.nombre_carrera.label("creador_coordinador")
+                estudiante_alias.numero_control.label("creador_estudiante"),
+                coordinador_alias.numero_control.label("creador_coordinador")
             )
             .join(Materias_Propuestas, Materias.clave_materia == Materias_Propuestas.materia_id)
             .join(Docente, Materias_Propuestas.id_coordinador == Docente.id_docente, isouter=True)
@@ -71,8 +71,12 @@ class MateriasPropuestasService:
                 aula_id=data.get("aula_id"),
                 turno=TurnoEnum[data["turno"]],
                 fecha_creacion=datetime.utcnow(),
-                cupo=data["cupo"],
+                cupo=data["cupo"]
             )
+            if id_estudiante:
+                new_materia.id_estudiante = id_estudiante
+            elif id_coordinador:
+                new_materia.id_coordinador = id_coordinador
 
             db.session.add(new_materia)
             db.session.commit()
