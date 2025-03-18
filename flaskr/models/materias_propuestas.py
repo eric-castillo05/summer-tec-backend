@@ -11,8 +11,9 @@ class Materias_Propuestas(db.Model):
     materia_id = db.Column(db.String(15), db.ForeignKey('materias.clave_materia'), nullable=False)
     clave_carrera = db.Column(db.String(15), db.ForeignKey('carreras.clave_carrera'), nullable=False)
     status = db.Column(Enum(StatusEnum), nullable=False)
-    aula_id = db.Column(db.Integer, db.ForeignKey('aulas.aula_id'), nullable=False)
-    turno = db.Column(Enum(TurnoEnum), nullable=False)
+    aula_id = db.Column(db.Integer, db.ForeignKey('aulas.aula_id'), nullable=True)
+    turno = db.Column(Enum(TurnoEnum), nullable=True)
     cupo = db.Column(db.Integer, nullable=False)
-    fecha_creaciobn = db.Column(db.DateTime, nullable=False)
+    docente = db.Column(db.String(15), db.ForeignKey('docentes.id_docente'),nullable=True)
+    fecha_creacion = db.Column(db.DateTime, nullable=False)
 
