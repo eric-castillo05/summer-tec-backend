@@ -1,11 +1,9 @@
 .idea
-
 flaskr/__pycache__
 flaskr/models/__pycache__
 flaskr/routes/__pycache__
 flaskr/services/__pycache__
 flaskr/utils/__pycache__
-
+__pycache__/
 .env
-
 .venv/
