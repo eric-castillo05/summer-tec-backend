@@ -3,18 +3,35 @@ import time
 from logging.handlers import RotatingFileHandler
 
 from flask import Flask, request
+from opentelemetry import trace
+from opentelemetry.instrumentation.flask import FlaskInstrumentor
+from opentelemetry.sdk.resources import Resource
+from opentelemetry.sdk.trace.export import SimpleSpanProcessor
+from opentelemetry.semconv.attributes.service_attributes import SERVICE_NAME
+from opentelemetry.sdk.trace import TracerProvider
+from opentelemetry.exporter.otlp.proto.http.trace_exporter import OTLPSpanExporter
+
 from flaskr.routes.AuthRoutes import auth_bp
 from flaskr.routes.MateriasPropuestasRoutes import materias_propuestas_bp
 import os
 from flaskr.utils.JWT import JWT
 from flaskr.utils.db import Database
-from flask_prometheus_metrics import register_metrics
 from werkzeug.middleware.dispatcher import DispatcherMiddleware
 from prometheus_client import make_wsgi_app
 
-
 def create_app():
     app = Flask(__name__)
+
+    # OpenTelemetry Tracing Setup
+    resource = Resource.create({SERVICE_NAME: "flaskr"})
+    provider = TracerProvider(resource=resource)
+    trace.set_tracer_provider(provider)
+
+    otlp_exporter = OTLPSpanExporter(endpoint="http://tempo:4318/v1/traces")
+    span_processor = SimpleSpanProcessor(otlp_exporter)
+    provider.add_span_processor(span_processor)
+
+    FlaskInstrumentor().instrument_app(app)
 
     log_dir = "logs"
     os.makedirs(log_dir, exist_ok=True)
@@ -58,6 +75,4 @@ def create_app():
         '/metrics': make_wsgi_app()
     })
 
-
     return app
-

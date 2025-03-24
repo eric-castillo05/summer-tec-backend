@@ -8,3 +8,5 @@ __pycache__/
 .env
 .venv/
 /logs/
+/tempo/single-tenant/
+/tempo/tempo_cluster_seed.json
