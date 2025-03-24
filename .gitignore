@@ -7,3 +7,4 @@ flaskr/utils/__pycache__
 __pycache__/
 .env
 .venv/
+/logs/

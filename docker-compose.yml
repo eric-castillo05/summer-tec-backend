@@ -5,6 +5,7 @@ services:
       - "5000:5000"
     volumes:
       - .:/app
+      - ./logs:/app/logs
     environment:
       FLASK_APP: run.py
       FLASK_ENV: development
@@ -34,6 +35,29 @@ services:
     networks:
       - monitoring-network
 
+  loki:
+    image: grafana/loki:latest
+    ports:
+      - "3100:3100"
+    command: -config.file=/etc/loki/loki-config.yml
+    volumes:
+      - ./loki/loki-config.yml:/etc/loki/loki-config.yml
+    networks:
+      - monitoring-network
+
+  promtail:
+    image: grafana/promtail:latest
+    volumes:
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - ./promtail/promtail-config.yml:/etc/promtail/promtail-config.yml
+      - .:/app
+      - ./logs:/app/logs
+    command: -config.file=/etc/promtail/promtail-config.yml
+    networks:
+      - monitoring-network
+    depends_on:
+      - loki
+
   grafana:
     image: grafana/grafana:latest
     ports:
@@ -44,6 +68,7 @@ services:
       - monitoring-network
     depends_on:
       - prometheus
+      - loki
 
 networks:
   monitoring-network:
