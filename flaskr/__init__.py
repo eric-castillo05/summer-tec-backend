@@ -16,6 +16,7 @@ from flaskr.routes.AuthRoutes import auth_bp
 from flaskr.routes.MateriasPropuestasRoutes import materias_propuestas_bp
 import os
 from flaskr.utils.JWT import JWT
+from flaskr.utils.config import Config
 from flaskr.utils.db import Database
 from werkzeug.middleware.dispatcher import DispatcherMiddleware
 from prometheus_client import make_wsgi_app
@@ -23,7 +24,7 @@ from prometheus_client import make_wsgi_app
 def create_app():
     app = Flask(__name__)
 
-    CORS(app, resources={r"/*": {"origins": "https://summertec.onrender.com"}}, supports_credentials=True)
+    CORS(app, resources={r"/*": {"origins": Config.ROUTE}}, supports_credentials=True)
 
     # OpenTelemetry Tracing Setup
     resource = Resource.create({SERVICE_NAME: "flaskr"})

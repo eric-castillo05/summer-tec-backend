@@ -10,3 +10,4 @@ class Config:
     PORT_DB = os.getenv("PORT_DB")
     BD_NAME = os.getenv("BD_NAME")
     JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY")
+    ROUTE = os.getenv("ROUTE")

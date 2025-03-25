@@ -5,6 +5,7 @@ from prometheus_client import CollectorRegistry, Counter, Histogram, generate_la
 import logging
 from flask_cors import cross_origin
 from flaskr.services import AuthService
+from flaskr.utils.config import Config
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -47,7 +48,7 @@ def push_to_grafana_local():
 
 
 @auth_bp.route('/signup', methods=['POST'])
-@cross_origin(origins="https://summertec.onrender.com", supports_credentials=True)
+@cross_origin(origins=Config.ROUTE, supports_credentials=True)
 def signup():
     start_time = time.time()
 
@@ -97,7 +98,7 @@ def signup():
 
 
 @auth_bp.route('/login', methods=['POST'])
-@cross_origin(origins="https://summertec.onrender.com", supports_credentials=True)
+@cross_origin(origins=Config.ROUTE, supports_credentials=True)
 def login():
     start_time = time.time()
 
