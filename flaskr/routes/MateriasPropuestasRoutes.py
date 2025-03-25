@@ -1,6 +1,5 @@
 from flask import Blueprint, jsonify, request
-from flask_jwt_extended import jwt_required, get_jwt_identity
-
+from flask_jwt_extended import jwt_required
 from flaskr.services.MateriasPropuestasService import MateriasPropuestasService
 
 materias_propuestas_bp = Blueprint("materias_propuestas_bp", __name__)
@@ -29,4 +28,5 @@ def create_materia_propuesta():
         return jsonify({"error": "Only one of 'id_estudiante' or 'id_coordinador' should be provided"}), 400
 
     response = materiasPropuestasService.register_materia_propuesta(data)
+
     return jsonify(response), response.get("status", 201)

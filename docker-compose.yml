@@ -5,6 +5,86 @@ services:
       - "5000:5000"
     volumes:
       - .:/app
+      - ./logs:/app/logs
     environment:
       FLASK_APP: run.py
       FLASK_ENV: development
+    networks:
+      - monitoring-network
+    depends_on:
+      - pushgateway
+
+  prometheus:
+    image: prom/prometheus:latest
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+      - '--web.console.templates=/usr/share/prometheus/consoles'
+    networks:
+      - monitoring-network
+
+  pushgateway:
+    image: prom/pushgateway:latest
+    ports:
+      - "9091:9091"
+    networks:
+      - monitoring-network
+
+  loki:
+    image: grafana/loki:latest
+    ports:
+      - "3100:3100"
+    command: -config.file=/etc/loki/loki-config.yml
+    volumes:
+      - ./loki/loki-config.yml:/etc/loki/loki-config.yml
+    networks:
+      - monitoring-network
+
+  promtail:
+    image: grafana/promtail:latest
+    volumes:
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - ./promtail/promtail-config.yml:/etc/promtail/promtail-config.yml
+      - .:/app
+      - ./logs:/app/logs
+    command: -config.file=/etc/promtail/promtail-config.yml
+    networks:
+      - monitoring-network
+    depends_on:
+      - loki
+
+  tempo:
+    image: grafana/tempo:latest
+    container_name: tempo
+    ports:
+      - "3200:3200"
+      - "4317:4317"
+      - "4318:4318"
+    volumes:
+      - ./tempo/tempo.yml:/etc/tempo.yml
+      - ./tempo:/tmp/tempo
+    command: [ "-config.file=/etc/tempo.yml" ]
+    networks:
+      - monitoring-network
+    restart: always
+
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - "3000:3000"
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: "admin"
+    networks:
+      - monitoring-network
+    depends_on:
+      - prometheus
+      - loki
+
+networks:
+  monitoring-network:
+    driver: bridge
