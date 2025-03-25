@@ -47,7 +47,7 @@ def push_to_grafana_local():
 
 
 @auth_bp.route('/signup', methods=['POST'])
-@cross_origin(origins="https://summertec.onrender.com/", supports_credentials=True)
+@cross_origin(origins="https://summertec.onrender.com", supports_credentials=True)
 def signup():
     start_time = time.time()
 
@@ -97,6 +97,7 @@ def signup():
 
 
 @auth_bp.route('/login', methods=['POST'])
+@cross_origin(origins="https://summertec.onrender.com", supports_credentials=True)
 def login():
     start_time = time.time()
 

@@ -23,7 +23,7 @@ from prometheus_client import make_wsgi_app
 def create_app():
     app = Flask(__name__)
 
-    CORS(app, resources={r"/*": {"origins": "https://summertec.onrender.com/"}}, supports_credentials=True)
+    CORS(app, resources={r"/*": {"origins": "https://summertec.onrender.com"}}, supports_credentials=True)
 
     # OpenTelemetry Tracing Setup
     resource = Resource.create({SERVICE_NAME: "flaskr"})
