@@ -3,7 +3,7 @@ import time
 import requests
 from prometheus_client import CollectorRegistry, Counter, Histogram, generate_latest
 import logging
-
+from flask_cors import cross_origin
 from flaskr.services import AuthService
 
 logging.basicConfig(level=logging.INFO)
@@ -47,6 +47,7 @@ def push_to_grafana_local():
 
 
 @auth_bp.route('/signup', methods=['POST'])
+@cross_origin(origins="http://localhost:5173", supports_credentials=True)
 def signup():
     start_time = time.time()
 

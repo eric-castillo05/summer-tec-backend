@@ -3,6 +3,7 @@ import time
 from logging.handlers import RotatingFileHandler
 
 from flask import Flask, request
+from flask_cors import CORS
 from opentelemetry import trace
 from opentelemetry.instrumentation.flask import FlaskInstrumentor
 from opentelemetry.sdk.resources import Resource
@@ -21,6 +22,8 @@ from prometheus_client import make_wsgi_app
 
 def create_app():
     app = Flask(__name__)
+
+    CORS(app, resources={r"/*": {"origins": "http://localhost:5173"}}, supports_credentials=True)
 
     # OpenTelemetry Tracing Setup
     resource = Resource.create({SERVICE_NAME: "flaskr"})
