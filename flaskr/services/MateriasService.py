@@ -8,6 +8,7 @@ class MateriasService:
     def get_materias(self):
         materias = (
             db.session.query(
+                Materias.clave_materia,
                 Materias.nombre_materia,
                 Materias.creditos,
                 Materias.horas_semana
@@ -18,6 +19,7 @@ class MateriasService:
             {
                 "nombre_materia": materia.nombre_materia,
                 "creditos": materia.creditos,
-                "horas_semana": materia.horas_semana
+                "horas_semana": materia.horas_semana,
+                "clave_materia": materia.clave_materia,
             } for materia in materias
         ]
