@@ -15,6 +15,8 @@ from opentelemetry.exporter.otlp.proto.http.trace_exporter import OTLPSpanExport
 from flaskr.routes.AuthRoutes import auth_bp
 from flaskr.routes.MateriasPropuestasRoutes import materias_propuestas_bp
 import os
+
+from flaskr.routes.MateriasRoute import materias_bp
 from flaskr.utils.JWT import JWT
 from flaskr.utils.config import Config
 from flaskr.utils.db import Database
@@ -74,7 +76,7 @@ def create_app():
 
     app.register_blueprint(auth_bp, url_prefix='/auth')
     app.register_blueprint(materias_propuestas_bp, url_prefix='/materias_propuestas')
-
+    app.register_blueprint(materias_bp, url_prefix='/materias')
     app.wsgi_app = DispatcherMiddleware(app.wsgi_app, {
         '/metrics': make_wsgi_app()
     })
