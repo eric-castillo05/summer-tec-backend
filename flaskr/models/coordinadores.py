@@ -5,7 +5,6 @@ class Coordinadores(Usuarios):
     id = db.Column(db.String(36), db.ForeignKey('usuarios.id'), primary_key=True)
     numero_control = db.Column(db.String(10), unique=True, nullable=False)
     clave_carrera = db.Column(db.String(15), db.ForeignKey('carreras.clave_carrera'), nullable=False)
-    nombre_carrera = db.Column(db.String(50), nullable=False)
 
     def __repr__(self):
         return f"<Coordinador {self.numero_control}>"
