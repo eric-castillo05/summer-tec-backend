@@ -1,6 +1,8 @@
 from flask import Blueprint, jsonify, request
 from flask_cors import cross_origin
 from flask_jwt_extended import jwt_required, get_jwt
+
+from flaskr.models import Horario
 from flaskr.utils import Config
 from flaskr.services.MateriasPropuestasService import MateriasPropuestasService
 
@@ -100,3 +102,29 @@ def get_materias_by_status(status):
         return jsonify({"error": "Unauthorized. Only administrators can access this resource."}), 403
     materias = materiasPropuestasService.get_by_status(status)
     return jsonify(materias), 200
+
+
+@materias_propuestas_bp.route('/horarios-por-edificio/<id_edificio>', methods=['GET'])
+@cross_origin(origins=Config.ROUTE, supports_credentials=True)
+@jwt_required()
+def obtener_horarios_por_edificio(id_edificio):
+    horarios = Horario.query.filter_by(edificio_id=id_edificio).all()
+
+    resultado = []
+    for horario in horarios:
+        materia = horario.materia_propuesta.materia if horario.materia_propuesta else None
+        resultado.append({
+            'id_horario': horario.id_horario,
+            'materia_propuesta_id': horario.materia_propuesta_id,
+            'nombre_materia': materia.nombre_materia if materia else None,
+            'dia': horario.dia_semana.name,
+            'hora_inicio': horario.hora_inicio.strftime('%H:%M'),
+            'hora_fin': horario.hora_fin.strftime('%H:%M'),
+            'aula_id': horario.aula_id,
+            'edificio_id': horario.edificio_id
+        })
+
+    return jsonify({
+        'edificio': id_edificio,
+        'horarios': resultado
+    })
