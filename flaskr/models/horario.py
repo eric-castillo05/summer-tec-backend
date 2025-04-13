@@ -15,7 +15,6 @@ class Horario(db.Model):
     hora_fin = db.Column(db.Time, nullable=False)
     edificio_id = db.Column(db.String(3), nullable=False)
     # Relación con Aula (un Horario pertenece a un Aula)
-    aula = db.relationship('Aula', backref='horarios_rel', lazy='joined')
 
     __table_args__ = (
         ForeignKeyConstraint(

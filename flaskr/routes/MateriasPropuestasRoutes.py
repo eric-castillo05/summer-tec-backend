@@ -2,7 +2,7 @@ from flask import Blueprint, jsonify, request
 from flask_cors import cross_origin
 from flask_jwt_extended import jwt_required, get_jwt
 
-from flaskr.models import Horario
+from flaskr.models import Horario, Materias_Propuestas, horario
 from flaskr.utils import Config
 from flaskr.services.MateriasPropuestasService import MateriasPropuestasService
 
@@ -128,3 +128,33 @@ def obtener_horarios_por_edificio(id_edificio):
         'edificio': id_edificio,
         'horarios': resultado
     })
+
+@materias_propuestas_bp.route('/get_by_materia/<int:id_materia>', methods=['GET'])
+@cross_origin(origins=Config.ROUTE, supports_credentials=True)
+@jwt_required()
+def obtener_materia_propuesta(id_materia):
+    materia = Materias_Propuestas.query.filter_by(id_materia_propuesta=id_materia).first()
+
+    if not materia:
+        return jsonify({'message': 'Materia propuesta no encontrada'}), 404
+
+    # Obtener horario relacionado con esa materia propuesta
+    horario = Horario.query.filter_by(materia_propuesta_id=materia.id_materia_propuesta).first()
+
+    # Ahora sí, obtenemos aula desde el horario
+    aula = horario.aula if horario else None
+
+    return jsonify({
+        'id_materia_propuesta': materia.id_materia_propuesta,
+        'nombre_materia': materia.materia.nombre_materia if materia.materia else None,
+        'clave_materia': materia.materia.clave_materia if materia.materia else None,
+        'status': materia.status.name,
+        'turno': materia.turno.name if materia.turno else None,
+        'cupo': materia.cupo,
+        'fecha_creacion': materia.fecha_creacion.strftime('%Y-%m-%d %H:%M:%S'),
+        'docente': materia.docente_rel.nombre_completo if materia.docente_rel else None,
+        'clave_carrera': materia.clave_carrera,
+        'aula_id': aula.aula_id if aula else None,
+        'edificio_id': aula.edificio_id if aula else None,
+    })
+
