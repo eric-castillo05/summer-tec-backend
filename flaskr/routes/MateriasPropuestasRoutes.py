@@ -153,3 +153,15 @@ def obtener_materia_propuesta(id_materia):
         'edificio_id': aula.edificio_id if aula else None,
     })
 
+
+@materias_propuestas_bp.route("/get_by_carrera/<string:id_carrera>", methods=["GET"])
+@cross_origin(origins=Config.ROUTE, supports_credentials=True)
+@jwt_required()
+def get_materias_by_carrera(id_carrera):
+    try:
+        materias = materiasPropuestasService.get_by_carrera(id_carrera)
+        return jsonify(materias)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+

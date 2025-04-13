@@ -230,4 +230,11 @@ class MateriasPropuestasService:
             "horarios": horarios_serializados
         }
 
+    def get_by_carrera(self, clave_carrera):
+        materias = (
+            db.session.query(Materias_Propuestas)
+            .filter(Materias_Propuestas.clave_carrera == clave_carrera)
+            .all()
+        )
+        return [self.serialize_materia(m) for m in materias]
 
