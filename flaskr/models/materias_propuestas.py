@@ -7,7 +7,7 @@ class Materias_Propuestas(db.Model):
     __tablename__ = 'materias_propuestas'
     id_materia_propuesta = db.Column(db.Integer, primary_key=True)
     id_estudiante = db.Column(db.String(9), db.ForeignKey('estudiante.numero_control') ,nullable=True)
-    id_coordinador = db.Column(db.String(10), db.ForeignKey('coordinadores.numero_control'), nullable=True)
+    id_coordinador = db.Column(db.String(35), db.ForeignKey('coordinadores.numero_control'), nullable=True)
     id_admin = db.Column(db.String(10), db.ForeignKey('admins.id'), nullable=True)
     materia_id = db.Column(db.String(15), db.ForeignKey('materias.clave_materia'), nullable=False)
     clave_carrera = db.Column(db.String(15), db.ForeignKey('carreras.clave_carrera'), nullable=False)

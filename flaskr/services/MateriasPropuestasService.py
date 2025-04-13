@@ -52,7 +52,8 @@ class MateriasPropuestasService:
                 "profesor": materia.profesor,
                 "nombre_materia": materia.nombre_materia,
                 "aula": materia.aula,
-                "creado_por": materia.creador_estudiante if materia.creador_estudiante else materia.creador_coordinador
+                "creado_por": materia.creador_estudiante if materia.creador_estudiante else (
+                    materia.creador_coordinador if materia.creador_coordinador else "ADMIN")
             }
             for materia in materias
         ]
@@ -65,7 +66,8 @@ class MateriasPropuestasService:
         # Check that only one creator type is provided
         creators = [c for c in [id_estudiante, id_coordinador, id_admin] if c]
         if len(creators) != 1:
-            return {"error": "Provide exactly one creator: 'id_estudiante', 'id_coordinador', or 'id_admin'", "status": 400}
+            return {"error": "Provide exactly one creator: 'id_estudiante', 'id_coordinador', or 'id_admin'",
+                    "status": 400}
 
         # Check student creation limit
         if id_estudiante:
@@ -77,7 +79,7 @@ class MateriasPropuestasService:
             new_materia = Materias_Propuestas(
                 materia_id=data["materia_id"],
                 clave_carrera=data["clave_carrera"],
-                status=StatusEnum[data["status"]],
+                status=StatusEnum['PENDIENTE'],
                 aula_id=data.get("aula_id"),
                 turno=TurnoEnum[data["turno"]],
                 fecha_creacion=datetime.now(),
@@ -85,12 +87,13 @@ class MateriasPropuestasService:
                 docente=data.get("docente")
             )
 
+            # Assign the creator based on the provided ID
             if id_estudiante:
                 new_materia.id_estudiante = id_estudiante
             elif id_coordinador:
                 new_materia.id_coordinador = id_coordinador
             elif id_admin:
-                new_materia.id_admin = id_admin
+                new_materia.id_admin = id_admin  # Admin does not need control number
 
             db.session.add(new_materia)
             db.session.commit()

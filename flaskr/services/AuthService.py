@@ -3,7 +3,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from flaskr.utils.db import db
 from flaskr.models.estudiante import Estudiante
 from flaskr.models.coordinadores import Coordinadores
-from flaskr.models import RolesEnum
+from flaskr.models import RolesEnum, Admin
 
 
 class AuthService:
@@ -43,26 +43,27 @@ class AuthService:
             return {"error": str(e)}, 500
 
     def login(self, email, password):
-        # First try to find user in Estudiante table
         user = Estudiante.query.filter_by(email=email).first()
         user_type = "estudiante"
 
-        # If not found, try Coordinadores table
         if not user:
             user = Coordinadores.query.filter_by(email=email).first()
             user_type = "coordinador"
 
-        # If still not found or password doesn't match, return error
+
+        if not user:
+            user = Admin.query.filter_by(email=email).first()
+            user_type = "admin"
+
+
         if not user or not check_password_hash(user.password, password):
             return {"error": "Invalid email or password"}, 401
 
-        # Get the role value from enum
+
         role = user.rol.value if hasattr(user, 'rol') and user.rol else "unknown"
 
-        # Use the numero_control as the identity (as string)
-        identity = str(user.numero_control)
+        identity = str(user.email)
 
-        # Create token with string identity
         access_token = create_access_token(
             identity=identity,
             additional_claims={
@@ -74,7 +75,6 @@ class AuthService:
         return {
             "access_token": access_token,
             "user": {
-                "numero_control": user.numero_control,
                 "nombre_completo": user.nombre_completo,
                 "email": user.email,
                 "role": role,
