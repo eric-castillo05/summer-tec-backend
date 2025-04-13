@@ -10,3 +10,4 @@ __pycache__/
 /logs/
 /tempo/single-tenant/
 /tempo/tempo_cluster_seed.json
+uploads/

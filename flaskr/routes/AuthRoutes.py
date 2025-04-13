@@ -4,15 +4,19 @@ from flaskr.services import AuthService
 from flaskr.utils.config import Config
 
 auth_bp = Blueprint('auth_bp', __name__)
-
 auth_service = AuthService()
 
 @auth_bp.route('/signup', methods=['POST'])
 @cross_origin(origins=Config.ROUTE, supports_credentials=True)
 def signup():
+    try:
+        data = request.get_json()
+    except Exception:
+        return jsonify({"error": "Invalid JSON"}), 400
 
-    data = request.get_json()
     required_fields = ['numero_control', 'nombre_completo', 'email', 'password', 'phone_number']
+    if not all(field in data for field in required_fields):
+        return jsonify({"error": "Missing required fields"}), 400
 
     numero_control = data['numero_control']
     nombre_completo = data['nombre_completo']
@@ -27,14 +31,17 @@ def signup():
         return jsonify({"error": "Password must be at least 8 characters"}), 400
 
     result, status = auth_service.signup(numero_control, nombre_completo, email, password, phone_number)
-
     return jsonify(result), status
 
 
 @auth_bp.route('/login', methods=['POST'])
 @cross_origin(origins=Config.ROUTE, supports_credentials=True)
 def login():
-    data = request.get_json()
+    try:
+        data = request.get_json()
+    except Exception:
+        return jsonify({"error": "Invalid JSON"}), 400
+
     required_fields = ['email', 'password']
     if not all(field in data for field in required_fields):
         return jsonify({"error": "Missing required fields"}), 400
@@ -43,6 +50,4 @@ def login():
     password = data['password']
 
     result, status = auth_service.login(email, password)
-
     return jsonify(result), status
-
