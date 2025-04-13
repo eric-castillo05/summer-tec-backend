@@ -11,7 +11,17 @@ class StatusEnum(enum.Enum):
     APROBADO = "APROBADO"
     RECHAZADO = "RECHAZADO"
 
+
 class RolesEnum(enum.Enum):
     ADMIN = "ADMIN"
     ESTUDIANTE = "ESTUDIANTE"
     COORDINADOR = "COORDINADOR"
+
+
+class DiaSemanaEnum(enum.Enum):
+    LUNES = "LUNES"
+    MARTES = "MARTES"
+    MIERCOLES = "MIERCOLES"
+    JUEVES = "JUEVES"
+    VIERNES = "VIERNES"
+    SABADO = "SABADO"
