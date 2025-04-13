@@ -230,21 +230,4 @@ class MateriasPropuestasService:
             "horarios": horarios_serializados
         }
 
-    def inscribir_estudiante(self, estudiante_id, materia_propuesta_id):
-        # Verificar duplicados
-        existe = Registro.query.filter_by(
-            estudiante_id=estudiante_id,
-            materia_propuesta_id=materia_propuesta_id
-        ).first()
-
-        if existe:
-            return {"error": "Ya estás inscrito en esta materia", "status": 400}
-
-        inscripcion = Registro(
-            estudiante_id=estudiante_id,
-            materia_propuesta_id=materia_propuesta_id
-        )
-        db.session.add(inscripcion)
-        db.session.commit()
-        return {"message": "Inscripción exitosa", "status": 201}
 
