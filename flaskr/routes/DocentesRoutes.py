@@ -25,27 +25,12 @@ def get_by_clave(clave_carrera):
 @jwt_required()
 def create_docente():
     data = request.get_json()
+    result = docentesService.create_docente(data)
 
-    required_fields = ['nombre_completo', 'clave_carrera', 'email']
-    if not all(field in data for field in required_fields):
-        return jsonify({"error": "Faltan campos obligatorios"}), 400
-
-    new_docente = Docente(
-        id_docente=str(uuid.uuid4()),
-        nombre_completo=data['nombre_completo'],
-        clave_carrera=data['clave_carrera'],
-        email=data['email']
-    )
-
-    db.session.add(new_docente)
-    db.session.commit()
+    if "error" in result:
+        return jsonify({"error": result["error"]}), result["status"]
 
     return jsonify({
-        "message": "Docente creado exitosamente",
-        "docente": {
-            "id_docente": new_docente.id_docente,
-            "nombre_completo": new_docente.nombre_completo,
-            "clave_carrera": new_docente.clave_carrera,
-            "email": new_docente.email
-        }
-    }), 201
+        "message": result["message"],
+        "docente": result["docente"]
+    }), result["status"]
