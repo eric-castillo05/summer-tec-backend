@@ -106,3 +106,30 @@ class MateriasPropuestasService:
         except Exception as e:
             db.session.rollback()
             return {"error": f"Something went wrong: {str(e)}", "status": 500}
+
+    def update_materia_propuesta(self, id_materia_propuesta, data):
+        materia = Materias_Propuestas.query.get(id_materia_propuesta)
+
+        if not materia:
+            return {"error": "Materia propuesta no encontrada", "status": 404}
+
+        # Campos permitidos para actualización
+        if "aula_id" in data:
+            materia.aula_id = data["aula_id"]
+        if "status" in data:
+            materia.status = StatusEnum(data["status"])
+        if "docente" in data:
+            materia.docente = data["docente"]
+
+        db.session.commit()
+        return {"message": "Materia propuesta actualizada exitosamente"}
+
+    def delete_materia_propuesta(self, id_materia_propuesta):
+        materia = Materias_Propuestas.query.get(id_materia_propuesta)
+
+        if not materia:
+            return {"error": "Materia propuesta no encontrada", "status": 404}
+
+        db.session.delete(materia)
+        db.session.commit()
+        return {"message": "Materia propuesta eliminada correctamente"}
