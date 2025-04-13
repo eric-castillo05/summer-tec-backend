@@ -9,6 +9,8 @@ from flaskr.models.aulas import Aula
 from flaskr.models.coordinadores import Coordinadores
 from flaskr.models.estudiante import Estudiante
 from flaskr.models.admin import Admin
+from flaskr.models.horario import DiaSemanaEnum
+
 
 class MateriasPropuestasService:
     def __init__(self):
@@ -137,13 +139,30 @@ class MateriasPropuestasService:
         if not materia:
             return {"error": "Materia propuesta no encontrada", "status": 404}
 
-        # Campos permitidos para actualización
+        # Actualización de campos simples
         if "aula_id" in data:
             materia.aula_id = data["aula_id"]
         if "status" in data:
             materia.status = StatusEnum(data["status"])
         if "docente" in data:
             materia.docente = data["docente"]
+
+        # Actualizar horarios si se proporcionan
+        if "horarios" in data:
+            # Borrar horarios existentes
+            Horario.query.filter_by(materia_propuesta_id=id_materia_propuesta).delete()
+
+            # Crear nuevos horarios
+            for h in data["horarios"]:
+                nuevo_horario = Horario(
+                    materia_propuesta_id=id_materia_propuesta,
+                    aula_id=h["aula_id"],
+                    edificio_id=h["edificio_id"],
+                    dia_semana=DiaSemanaEnum[h["dia"]],
+                    hora_inicio=datetime.strptime(h["inicio"], "%H:%M").time(),
+                    hora_fin=datetime.strptime(h["fin"], "%H:%M").time()
+                )
+                db.session.add(nuevo_horario)
 
         db.session.commit()
         return {"message": "Materia propuesta actualizada exitosamente"}
