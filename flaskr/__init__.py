@@ -4,6 +4,7 @@ from flask_migrate import Migrate
 
 from flaskr.routes.AuthRoutes import auth_bp
 from flaskr.routes.DocentesRoutes import docentes_bp
+
 from flaskr.routes.EstudinteRoutes import estudiante_bp
 from flaskr.routes.MateriasPropuestasRoutes import materias_propuestas_bp
 from flaskr.routes.MateriasRoute import materias_bp
@@ -25,5 +26,6 @@ def create_app():
     app.register_blueprint(materias_bp, url_prefix='/materias')
     app.register_blueprint(estudiante_bp, url_prefix='/estudiante')
     app.register_blueprint(docentes_bp, url_prefix='/docente')
+
 
     return app
