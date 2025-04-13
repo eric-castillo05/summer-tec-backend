@@ -80,3 +80,23 @@ def delete_materia_propuesta(id_materia_propuesta):
     status_code = response.pop("status", 200) if isinstance(response, dict) else 200
 
     return jsonify(response), status_code
+
+
+@materias_propuestas_bp.route("/get_by_status_carrera/<status>/<clave_carrera>", methods=["GET"])
+@cross_origin(origins=Config.ROUTE, supports_credentials=True)
+@jwt_required()
+def get_materias_by_status_and_carrera(status, clave_carrera):
+    materias = materiasPropuestasService.get_by_status_and_carrera(status, clave_carrera)
+    return jsonify(materias), 200
+
+
+@materias_propuestas_bp.route("/get_all_by_status/status/<status>", methods=["GET"])
+@cross_origin(origins=Config.ROUTE, supports_credentials=True)
+@jwt_required()
+def get_materias_by_status(status):
+    claims = get_jwt()
+
+    if claims.get("role") != "ADMIN":
+        return jsonify({"error": "Unauthorized. Only administrators can access this resource."}), 403
+    materias = materiasPropuestasService.get_by_status(status)
+    return jsonify(materias), 200

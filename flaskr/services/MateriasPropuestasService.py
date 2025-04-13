@@ -133,3 +133,39 @@ class MateriasPropuestasService:
         db.session.delete(materia)
         db.session.commit()
         return {"message": "Materia propuesta eliminada correctamente"}
+
+    def get_by_status_and_carrera(self, status, clave_carrera):
+        materias = (
+            db.session.query(Materias_Propuestas)
+            .filter(
+                Materias_Propuestas.status == status.upper(),
+                Materias_Propuestas.clave_carrera == clave_carrera
+            )
+            .all()
+        )
+
+        return [self.serialize_materia(m) for m in materias]
+
+    def get_by_status(self, status):
+        materias = (
+            db.session.query(Materias_Propuestas)
+            .filter(Materias_Propuestas.status == status.upper())
+            .all()
+        )
+
+        return [self.serialize_materia(m) for m in materias]
+
+    def serialize_materia(self, materia):
+        return {
+            "id": materia.id_materia_propuesta,
+            "materia_id": materia.materia_id,
+            "clave_carrera": materia.clave_carrera,
+            "status": materia.status.name,
+            "turno": materia.turno.name if materia.turno else None,
+            "docente": materia.docente,
+            "aula_id": materia.aula_id,
+            "cupo": materia.cupo,
+            "creado_por": materia.id_estudiante or materia.id_coordinador or materia.id_admin,
+            "fecha_creacion": materia.fecha_creacion.isoformat()
+        }
+
