@@ -28,15 +28,9 @@ class Database:
         db_uri = f'mysql+pymysql://{Config.USER_DB}:{Config.PASSWORD_DB}@{Config.HOST_DB}:{Config.PORT_DB}/{Config.BD_NAME}'
         app.config['SQLALCHEMY_DATABASE_URI'] = db_uri
         app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-        engine = create_engine(db_uri.split('@')[0] + f'@{Config.HOST_DB}:{Config.PORT_DB}/mysql')
+        engine = create_engine(db_uri)
         if not database_exists(engine.url):
             create_database(engine.url)
 
         db.init_app(app)
-        with app.app_context():
-            self.db.create_all()
         self.initialized = True
-
-    @property
-    def session(self):
-        return self.db.session

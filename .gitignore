@@ -11,3 +11,4 @@ __pycache__/
 /tempo/single-tenant/
 /tempo/tempo_cluster_seed.json
 uploads/
+/migrations
