@@ -9,15 +9,39 @@ class MateriasService:
         materias = (
             db.session.query(
                 Materias.clave_materia,
+                Materias.clave_carrera,
                 Materias.nombre_materia,
                 Materias.creditos,
-                Materias.horas_semana
+                Materias.horas_semana,
             ).all()
         )
 
         return [
             {
                 "nombre_materia": materia.nombre_materia,
+                "clave_carrera": materia.clave_carrera,
+                "creditos": materia.creditos,
+                "horas_semana": materia.horas_semana,
+                "clave_materia": materia.clave_materia,
+            } for materia in materias
+        ]
+
+
+    def get_materias_by_clave_carrera(self, clave_carrera):
+        materias = (
+            db.session.query(
+                Materias.clave_materia,
+                Materias.clave_carrera,
+                Materias.nombre_materia,
+                Materias.creditos,
+                Materias.horas_semana,
+            ).all()
+        )
+
+        return [
+            {
+                "nombre_materia": materia.nombre_materia,
+                "clave_carrera": materia.clave_carrera,
                 "creditos": materia.creditos,
                 "horas_semana": materia.horas_semana,
                 "clave_materia": materia.clave_materia,

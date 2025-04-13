@@ -48,3 +48,55 @@ def create_materia_propuesta():
     status_code = response.pop("status", 201) if isinstance(response, dict) else 201
 
     return jsonify(response), status_code
+
+
+@materias_propuestas_bp.route("/update_materias_propuestas/<int:id_materia_propuesta>", methods=["PUT"])
+@cross_origin(origins=Config.ROUTE, supports_credentials=True)
+@jwt_required()
+def update_materia_propuesta(id_materia_propuesta):
+    claims = get_jwt()
+    if claims.get("role") not in ["COORDINADOR", "ADMIN"]:
+        return jsonify({"error": "No autorizado. Solo coordinadores o administradores pueden modificar."}), 403
+
+    data = request.get_json()
+    if not data:
+        return jsonify({"error": "No se recibieron datos para actualizar"}), 400
+
+    response = materiasPropuestasService.update_materia_propuesta(id_materia_propuesta, data)
+    status_code = response.pop("status", 200) if isinstance(response, dict) else 200
+
+    return jsonify(response), status_code
+
+
+@materias_propuestas_bp.route("/delete_materias_propuestas/<int:id_materia_propuesta>", methods=["DELETE"])
+@cross_origin(origins=Config.ROUTE, supports_credentials=True)
+@jwt_required()
+def delete_materia_propuesta(id_materia_propuesta):
+    claims = get_jwt()
+    if claims.get("role") not in ["COORDINADOR", "ADMIN"]:
+        return jsonify({"error": "No autorizado. Solo coordinadores o administradores pueden eliminar."}), 403
+
+    response = materiasPropuestasService.delete_materia_propuesta(id_materia_propuesta)
+    status_code = response.pop("status", 200) if isinstance(response, dict) else 200
+
+    return jsonify(response), status_code
+
+
+@materias_propuestas_bp.route("/get_by_status_carrera/<status>/<clave_carrera>", methods=["GET"])
+@cross_origin(origins=Config.ROUTE, supports_credentials=True)
+@jwt_required()
+def get_materias_by_status_and_carrera(status, clave_carrera):
+    materias = materiasPropuestasService.get_by_status_and_carrera(status, clave_carrera)
+    return jsonify(materias), 200
+
+
+@materias_propuestas_bp.route("/get_all_by_status/status/<status>", methods=["GET"])
+@cross_origin(origins=Config.ROUTE, supports_credentials=True)
+@jwt_required()
+def get_materias_by_status(status):
+    claims = get_jwt()
+
+    if claims.get("role") != "ADMIN":
+        return jsonify({"error": "Unauthorized. Only administrators can access this resource."}), 403
+    materias = materiasPropuestasService.get_by_status(status)
+    return jsonify(materias), 200

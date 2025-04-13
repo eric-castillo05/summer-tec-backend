@@ -5,9 +5,12 @@ from .edificios import Edificios
 from .enums import TurnoEnum
 from .enums import StatusEnum
 from .enums import RolesEnum
+from .enums import DiaSemanaEnum
 from .materias import Materias
 from .materias_propuestas import Materias_Propuestas
 from .estudiante import Estudiante
 from .docentes import Docente
 from .usuarios import Usuarios
 from .admin import Admin
+from .registro import Registro
+from .horario import Horario
