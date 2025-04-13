@@ -1,6 +1,7 @@
 from flask import Flask
 from flask_cors import CORS
 from flaskr.routes.AuthRoutes import auth_bp
+from flaskr.routes.EstudinteRoutes import estudiante_bp
 from flaskr.routes.MateriasPropuestasRoutes import materias_propuestas_bp
 from flaskr.routes.MateriasRoute import materias_bp
 from flaskr.utils.JWT import JWT
@@ -20,6 +21,7 @@ def create_app():
     app.register_blueprint(auth_bp, url_prefix='/auth')
     app.register_blueprint(materias_propuestas_bp, url_prefix='/materias_propuestas')
     app.register_blueprint(materias_bp, url_prefix='/materias')
+    app.register_blueprint(estudiante_bp, url_prefix='/estudiante')
 
 
     return app
