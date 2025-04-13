@@ -22,4 +22,24 @@ def inscribir():
 
     return jsonify(response), status_code
 
+@estudiante_bp.route('/baja/', methods=['DELETE'])
+@cross_origin(origins=Config.ROUTE, supports_credentials=True)
+@jwt_required()
+def baja():
+    data = request.get_json()
+    estudiante_id = data['estudiante_id']
+    materia_propuesta_id = data['materia_propuesta_id']
+
+    response = estudianteService.baja_estudiante(estudiante_id, materia_propuesta_id)
+    status_code = response.pop("status", 200) if isinstance(response, dict) else 200
+
+    return jsonify(response), status_code
+
+@estudiante_bp.route('/inscritos/<int:materia_propuesta_id>', methods=['GET'])
+@cross_origin(origins=Config.ROUTE, supports_credentials=True)
+@jwt_required()
+def obtener_inscritos(materia_propuesta_id):
+    estudiantes = estudianteService.obtener_estudiantes_inscritos(materia_propuesta_id)
+    return jsonify(estudiantes), 200
+
 
