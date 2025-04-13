@@ -15,11 +15,6 @@ materiasPropuestasService = MateriasPropuestasService()
 @cross_origin(origins=Config.ROUTE, supports_credentials=True)
 @jwt_required()
 def get_materias():
-    claims = get_jwt()
-
-    if not claims.get("role") == "ADMIN":
-        return jsonify({"error": "Unauthorized. Only administrators can access this resource."}), 403
-
     materias = materiasPropuestasService.get_materias_propuestas()
     return jsonify(materias)
 
