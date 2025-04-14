@@ -42,9 +42,9 @@ class MateriasPropuestasService:
             .outerjoin(estudiante_alias, Materias_Propuestas.id_estudiante == estudiante_alias.numero_control)
             .outerjoin(coordinador_alias, Materias_Propuestas.id_coordinador == coordinador_alias.numero_control)
             .outerjoin(admin_alias, Materias_Propuestas.id_admin == admin_alias.id)
-            .join(Horario, Materias_Propuestas.id_materia_propuesta == Horario.materia_propuesta_id)
-            .join(Aula, Horario.aula_id == Aula.aula_id)
-            .join(Edificios, Aula.edificio_id == Edificios.numero_edificio)
+            .outerjoin(Horario, Materias_Propuestas.id_materia_propuesta == Horario.materia_propuesta_id)
+            .outerjoin(Aula, Horario.aula_id == Aula.aula_id)
+            .outerjoin(Edificios, Aula.edificio_id == Edificios.numero_edificio)
             .all()
         )
 
