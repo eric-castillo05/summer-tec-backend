@@ -25,7 +25,7 @@ def get_materias():
 def create_materia_propuesta():
     data = request.get_json()
 
-    required_fields = ["materia_id", "clave_carrera", "status", "turno"]
+    required_fields = ["materia_id", "clave_carrera", "turno"]
     if not all(field in data for field in required_fields):
         return jsonify({"error": f"Missing required fields: {required_fields}"}), 400
 
