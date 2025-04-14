@@ -1,6 +1,6 @@
 from datetime import datetime, time
 from sqlalchemy.orm import aliased
-from flaskr.models import Docente, StatusEnum, TurnoEnum, RolesEnum, Registro, Horario, horario
+from flaskr.models import Docente, StatusEnum, TurnoEnum, RolesEnum, Registro, Horario, Edificios
 from flaskr.services import EstudianteService
 from flaskr.utils.db import db
 from flaskr.models.materias_propuestas import Materias_Propuestas
@@ -32,13 +32,18 @@ class MateriasPropuestasService:
                 Materias.nombre_materia,
                 estudiante_alias.numero_control.label("creador_estudiante"),
                 coordinador_alias.numero_control.label("creador_coordinador"),
-                admin_alias.id.label("creador-admin")
+                admin_alias.id.label("creador_admin"),
+                Aula.aula_id.label("aula"),
+                Edificios.numero_edificio.label("edificio")
             )
             .join(Materias_Propuestas, Materias.clave_materia == Materias_Propuestas.materia_id)
             .join(Docente, Materias_Propuestas.docente == Docente.id_docente, isouter=True)
             .outerjoin(estudiante_alias, Materias_Propuestas.id_estudiante == estudiante_alias.numero_control)
             .outerjoin(coordinador_alias, Materias_Propuestas.id_coordinador == coordinador_alias.numero_control)
             .outerjoin(admin_alias, Materias_Propuestas.id_admin == admin_alias.id)
+            .join(Horario, Materias_Propuestas.id_materia_propuesta == Horario.materia_propuesta_id)
+            .join(Aula, Horario.aula_id == Aula.aula_id)
+            .join(Edificios, Aula.edificio_id == Edificios.numero_edificio)
             .all()
         )
 
@@ -52,10 +57,13 @@ class MateriasPropuestasService:
                 "profesor": materia.profesor,
                 "nombre_materia": materia.nombre_materia,
                 "creado_por": materia.creador_estudiante if materia.creador_estudiante else (
-                    materia.creador_coordinador if materia.creador_coordinador else "ADMIN")
+                    materia.creador_coordinador if materia.creador_coordinador else "ADMIN"),
+                "aula": materia.aula,
+                "edificio": materia.edificio
             }
             for materia in materias
         ]
+
 
     def register_materia_propuesta(self, data):
         id_estudiante = data.get("id_estudiante")
