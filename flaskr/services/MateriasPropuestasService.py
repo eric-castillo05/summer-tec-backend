@@ -34,7 +34,8 @@ class MateriasPropuestasService:
                 coordinador_alias.numero_control.label("creador_coordinador"),
                 admin_alias.id.label("creador_admin"),
                 Aula.aula_id.label("aula"),
-                Edificios.numero_edificio.label("edificio")
+                Edificios.numero_edificio.label("edificio"),
+                Materias_Propuestas.status
             )
             .join(Materias_Propuestas, Materias.clave_materia == Materias_Propuestas.materia_id)
             .join(Docente, Materias_Propuestas.docente == Docente.id_docente, isouter=True)
@@ -59,7 +60,8 @@ class MateriasPropuestasService:
                 "creado_por": materia.creador_estudiante if materia.creador_estudiante else (
                     materia.creador_coordinador if materia.creador_coordinador else "ADMIN"),
                 "aula": materia.aula,
-                "edificio": materia.edificio
+                "edificio": materia.edificio,
+                "status":materia.status.name if materia.status else None
             }
             for materia in materias
         ]
