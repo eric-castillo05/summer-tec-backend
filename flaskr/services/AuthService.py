@@ -1,3 +1,5 @@
+from datetime import timedelta
+
 from flask_jwt_extended import create_access_token
 from werkzeug.security import generate_password_hash, check_password_hash
 from flaskr.utils.db import db
@@ -35,7 +37,8 @@ class AuthService:
             # Create token with string identity and role as additional claim
             access_token = create_access_token(
                 identity=str(new_user.numero_control),
-                additional_claims={"role": new_user.rol.value}
+                additional_claims={"role": new_user.rol.value},
+                expires_delta=timedelta(minutes=15)
             )
             return {"access_token": access_token}, 201
         except Exception as e:
@@ -69,7 +72,8 @@ class AuthService:
             additional_claims={
                 "role": role,
                 "user_type": user_type
-            }
+            },
+            expires_delta=timedelta(minutes=15)
         )
 
         return {
