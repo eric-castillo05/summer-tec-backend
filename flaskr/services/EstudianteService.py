@@ -89,10 +89,9 @@ class EstudianteService:
 
         estudiantes_data = []
         for reg in registros:
-            estudiante = Estudiante.query.filter_by(numero_control=reg.estudiante_id).first()
+            estudiante = Estudiante.query.filter_by(email=reg.estudiante_id).first()
             if estudiante:
                 estudiantes_data.append({
-                    "numero_control": estudiante.numero_control,
                     "nombre_completo": estudiante.nombre_completo,
                     "email": estudiante.email,
                     "fecha_inscripcion": reg.fecha_inscripcion.strftime('%Y-%m-%d %H:%M:%S')
