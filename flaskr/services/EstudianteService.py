@@ -15,7 +15,7 @@ class EstudianteService:
         Returns True if the student can create another MateriaPropuesta.
         Students are limited to 2 proposals.
         """
-        estudiante = Estudiante.query.filter_by(numero_control=estudiante_id).first()
+        estudiante = Estudiante.query.filter_by(email=estudiante_id).first()
 
         if not estudiante:
             return {"can_create": False, "message": "Student not found"}
@@ -23,7 +23,7 @@ class EstudianteService:
         if estudiante.rol != RolesEnum.ESTUDIANTE:
             return {"can_create": True, "message": "Only students are limited"}
 
-        count = Materias_Propuestas.query.filter_by(id_estudiante=estudiante.numero_control).count()
+        count = Materias_Propuestas.query.filter_by(user_id=estudiante.email).count()
 
         if count >= 2:
             return {"can_create": False, "message": "Maximum number of proposed subjects reached (2)."}
@@ -89,10 +89,9 @@ class EstudianteService:
 
         estudiantes_data = []
         for reg in registros:
-            estudiante = Estudiante.query.filter_by(numero_control=reg.estudiante_id).first()
+            estudiante = Estudiante.query.filter_by(email=reg.estudiante_id).first()
             if estudiante:
                 estudiantes_data.append({
-                    "numero_control": estudiante.numero_control,
                     "nombre_completo": estudiante.nombre_completo,
                     "email": estudiante.email,
                     "fecha_inscripcion": reg.fecha_inscripcion.strftime('%Y-%m-%d %H:%M:%S')
