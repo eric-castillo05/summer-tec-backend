@@ -13,7 +13,6 @@ class DocenteService:
 
         return [
             {
-                "id_docente": docente.id_docente,
                 "nombre_completo": docente.nombre_completo,
                 "email": docente.email,
                 "clave_carrera": docente.clave_carrera
@@ -31,7 +30,6 @@ class DocenteService:
             return {"error": "El email ya está registrado", "status": 409}
 
         new_docente = Docente(
-            id_docente=str(uuid.uuid4()),
             nombre_completo=data['nombre_completo'],
             clave_carrera=data['clave_carrera'],
             email=data['email']
@@ -43,7 +41,6 @@ class DocenteService:
         return {
             "message": "Docente creado exitosamente",
             "docente": {
-                "id_docente": new_docente.id_docente,
                 "nombre_completo": new_docente.nombre_completo,
                 "clave_carrera": new_docente.clave_carrera,
                 "email": new_docente.email

@@ -232,7 +232,7 @@ class MateriasPropuestasService:
             "turno": materia.turno.name if materia.turno else None,
             "docente": materia.docente,
             "cupo": materia.cupo,
-            "creado_por": materia.id_estudiante or materia.id_coordinador or materia.id_admin,
+            "creado_por": materia.user_id,
             "fecha_creacion": materia.fecha_creacion.isoformat(),
             "horarios": horarios_serializados
         }
