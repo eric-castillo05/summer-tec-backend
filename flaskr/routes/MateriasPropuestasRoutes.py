@@ -29,16 +29,6 @@ def create_materia_propuesta():
     if not all(field in data for field in required_fields):
         return jsonify({"error": f"Missing required fields: {required_fields}"}), 400
 
-    # Check that at least one creator is provided
-    if not any(key in data for key in ["id_estudiante", "id_coordinador", "id_admin"]):
-        return jsonify({"error": "At least one of 'id_estudiante', 'id_coordinador', or 'id_admin' is required"}), 400
-
-    # Check that only one creator is provided
-    creators = [key for key in ["id_estudiante", "id_coordinador", "id_admin"] if key in data]
-    if len(creators) > 1:
-        return jsonify(
-            {"error": "Only one of 'id_estudiante', 'id_coordinador', or 'id_admin' should be provided"}), 400
-
     response = materiasPropuestasService.register_materia_propuesta(data)
 
     # Extract status from response or default to 201

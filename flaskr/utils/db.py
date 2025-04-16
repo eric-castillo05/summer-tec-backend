@@ -33,4 +33,5 @@ class Database:
             create_database(engine.url)
 
         db.init_app(app)
+
         self.initialized = True

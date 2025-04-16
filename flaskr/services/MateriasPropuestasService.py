@@ -1,6 +1,6 @@
 from datetime import datetime, time
 from sqlalchemy.orm import aliased
-from flaskr.models import Docente, StatusEnum, TurnoEnum, RolesEnum, Registro, Horario, Edificios
+from flaskr.models import Docente, StatusEnum, TurnoEnum, RolesEnum, Registro, Horario, Edificios, Usuarios, Carreras
 from flaskr.services import EstudianteService
 from flaskr.utils.db import db
 from flaskr.models.materias_propuestas import Materias_Propuestas
@@ -17,10 +17,10 @@ class MateriasPropuestasService:
         self.estudiante_service = EstudianteService()
 
     def get_materias_propuestas(self):
-        estudiante_alias = aliased(Estudiante)
-        coordinador_alias = aliased(Coordinadores)
-        admin_alias = aliased(Admin)
+        # Alias para la tabla User para referenciar diferentes tipos de usuarios
+        usuario_alias = aliased(Usuarios)
 
+        # Query para obtener las materias propuestas con las relaciones necesarias
         materias = (
             db.session.query(
                 Materias.horas_semana,
@@ -30,18 +30,17 @@ class MateriasPropuestasService:
                 Materias_Propuestas.id_materia_propuesta,
                 Docente.nombre_completo.label("profesor"),
                 Materias.nombre_materia,
-                estudiante_alias.numero_control.label("creador_estudiante"),
-                coordinador_alias.numero_control.label("creador_coordinador"),
-                admin_alias.id.label("creador_admin"),
+                Materias.clave_materia,
+                Materias.clave_carrera,
+                usuario_alias.email.label("email"),
+                usuario_alias.rol.label("role"),
                 Aula.aula_id.label("aula"),
                 Edificios.numero_edificio.label("edificio"),
                 Materias_Propuestas.status
             )
             .join(Materias_Propuestas, Materias.clave_materia == Materias_Propuestas.materia_id)
-            .join(Docente, Materias_Propuestas.docente == Docente.id_docente, isouter=True)
-            .outerjoin(estudiante_alias, Materias_Propuestas.id_estudiante == estudiante_alias.numero_control)
-            .outerjoin(coordinador_alias, Materias_Propuestas.id_coordinador == coordinador_alias.numero_control)
-            .outerjoin(admin_alias, Materias_Propuestas.id_admin == admin_alias.id)
+            .join(Docente, Materias_Propuestas.docente == Docente.email, isouter=True)
+            .join(usuario_alias, Materias_Propuestas.user_id == usuario_alias.email)
             .outerjoin(Horario, Materias_Propuestas.id_materia_propuesta == Horario.materia_propuesta_id)
             .outerjoin(Aula, Horario.aula_id == Aula.aula_id)
             .outerjoin(Edificios, Aula.edificio_id == Edificios.numero_edificio)
@@ -57,54 +56,48 @@ class MateriasPropuestasService:
                 "id_materia": materia.id_materia_propuesta,
                 "profesor": materia.profesor,
                 "nombre_materia": materia.nombre_materia,
-                "creado_por": materia.creador_estudiante if materia.creador_estudiante else (
-                    materia.creador_coordinador if materia.creador_coordinador else "ADMIN"),
+                "clave_materia": materia.clave_materia,
+                "clave_carrera": materia.clave_carrera,
+                "creado_por": materia.email,
                 "aula": materia.aula,
                 "edificio": materia.edificio,
-                "status":materia.status.name if materia.status else None
+                "status": materia.status.name if materia.status else None
             }
             for materia in materias
         ]
 
 
     def register_materia_propuesta(self, data):
-        id_estudiante = data.get("id_estudiante")
-        id_coordinador = data.get("id_coordinador")
-        id_admin = data.get("id_admin")
+        user_id = data.get("user_id")
+        if not user_id:
+            return {"error": "Se requiere un user_id válido", "status": 400}
 
-        # Check that only one creator type is provided
-        creators = [c for c in [id_estudiante, id_coordinador, id_admin] if c]
-        if len(creators) != 1:
-            return {"error": "Provide exactly one creator: 'id_estudiante', 'id_coordinador', or 'id_admin'",
-                    "status": 400}
+        # Verificar que el usuario existe y obtener su rol
+        usuario = db.session.query(Usuarios).filter_by(email=user_id).first()
+        if not usuario:
+            return {"error": "Usuario no encontrado", "status": 404}
 
-        # Check student creation limit
-        if id_estudiante:
-            result = self.estudiante_service.can_create_materia_propuesta(id_estudiante)
+        # Verificar límite de creación para estudiantes
+        if usuario.rol == RolesEnum.ESTUDIANTE:
+            result = self.estudiante_service.can_create_materia_propuesta(user_id)
             if not result.get("can_create", False):
-                return {"error": result.get("message", "Limit reached"), "status": 400}
+                return {"error": result.get("message", "Se ha alcanzado el límite de propuestas"), "status": 400}
 
         try:
             new_materia = Materias_Propuestas(
+                user_id=user_id,
                 materia_id=data["materia_id"],
                 clave_carrera=data["clave_carrera"],
-                status=StatusEnum['PENDIENTE'],
+                status=StatusEnum.PENDIENTE,
                 turno=TurnoEnum[data["turno"]],
                 fecha_creacion=datetime.now(),
                 cupo=data.get("cupo", 25),
                 docente=data.get("docente"),
             )
 
-            # Assign the creator based on the provided ID
-            if id_estudiante:
-                new_materia.id_estudiante = id_estudiante
-            elif id_coordinador:
-                new_materia.id_coordinador = id_coordinador
-            elif id_admin:
-                new_materia.id_admin = id_admin  # Admin does not need control number
-
             db.session.add(new_materia)
             db.session.flush()
+
             saved_horarios = []
             horarios = data.get("horario", [])
             for h in horarios:
@@ -120,28 +113,32 @@ class MateriasPropuestasService:
                 saved_horarios.append(horario)
 
             db.session.commit()
+
             return {
                 "message": "Materia propuesta registrada con éxito",
                 "status": 201,
                 "id_materia_propuesta": new_materia.id_materia_propuesta,
+                "user_id": new_materia.user_id,
+                "rol_usuario": usuario.rol.name,
                 "horarios": [
                     {
                         "id_horario": h.id_horario,
                         "dia": h.dia_semana.name,
                         "inicio": h.hora_inicio.strftime("%H:%M"),
                         "fin": h.hora_fin.strftime("%H:%M"),
-                        "aula_id": h.aula_id
+                        "aula_id": h.aula_id,
+                        "edificio_id": h.edificio_id
                     }
                     for h in saved_horarios
                 ]
             }
 
         except KeyError as e:
-            return {"error": f"Invalid key: {str(e)}", "status": 400}
+            return {"error": f"Clave inválida: {str(e)}", "status": 400}
 
         except Exception as e:
             db.session.rollback()
-            return {"error": f"Something went wrong: {str(e)}", "status": 500}
+            return {"error": f"Ha ocurrido un error: {str(e)}", "status": 500}
 
     def update_materia_propuesta(self, id_materia_propuesta, data):
         materia = Materias_Propuestas.query.get(id_materia_propuesta)

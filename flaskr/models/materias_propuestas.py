@@ -12,7 +12,7 @@ class Materias_Propuestas(db.Model):
     status = db.Column(Enum(StatusEnum), nullable=False)
     turno = db.Column(Enum(TurnoEnum), nullable=True)
     cupo = db.Column(db.Integer, nullable=False)
-    docente = db.Column(db.String(15), db.ForeignKey('docentes.id_docente'),nullable=True)
+    docente = db.Column(db.String(50), db.ForeignKey('docentes.email'),nullable=True)
     fecha_creacion = db.Column(db.DateTime, nullable=False)
 
     horarios = db.relationship('Horario', backref='materia_propuesta', lazy='joined',
