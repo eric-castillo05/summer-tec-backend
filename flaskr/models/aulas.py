@@ -1,6 +1,5 @@
 from flaskr.utils.db import db
 
-
 class Aula(db.Model):
     __tablename__ = 'aulas'
 
@@ -11,5 +10,4 @@ class Aula(db.Model):
         db.PrimaryKeyConstraint('aula_id', 'edificio_id'),
     )
 
-    edificio = db.relationship('Edificios', foreign_keys=[edificio_id], lazy='joined')
-
+    edificio = db.relationship('Edificios', back_populates='aulas', foreign_keys=[edificio_id], lazy='joined')

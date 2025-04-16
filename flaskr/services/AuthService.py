@@ -12,7 +12,7 @@ class AuthService:
     def __init__(self):
         pass
 
-    def signup(self, numero_control, nombre_completo, email, password, phone_number):
+    def signup(self, numero_control, nombre_completo, email, password, phone_number, clave_carrera):
         if Estudiante.query.filter_by(email=email).first():
             return {"error": "Email already registered"}, 400
 
@@ -27,6 +27,7 @@ class AuthService:
             email=email,
             password=hashed_password,
             phone_number=phone_number,
+            clave_carrera=clave_carrera,
             rol=RolesEnum.ESTUDIANTE
         )
 
@@ -36,7 +37,7 @@ class AuthService:
 
             # Create token with string identity and role as additional claim
             access_token = create_access_token(
-                identity=str(new_user.numero_control),
+                identity=str(new_user.email),
                 additional_claims={"role": new_user.rol.value},
                 expires_delta=timedelta(minutes=15)
             )

@@ -5,7 +5,7 @@ class Registro(db.Model):
     __tablename__ = 'registros'
 
     id = db.Column(db.Integer, primary_key=True)
-    estudiante_id = db.Column(db.String(9), db.ForeignKey('estudiante.numero_control'), nullable=False)
+    estudiante_id = db.Column(db.String(9), db.ForeignKey('usuarios.email'), nullable=False)
     materia_propuesta_id = db.Column(db.Integer, db.ForeignKey('materias_propuestas.id_materia_propuesta'), nullable=False)
     fecha_inscripcion = db.Column(db.DateTime, nullable=False)
     estudiante = db.relationship('Estudiante', backref='registros')

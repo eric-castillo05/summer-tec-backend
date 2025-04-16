@@ -14,7 +14,7 @@ def signup():
     except Exception:
         return jsonify({"error": "Invalid JSON"}), 400
 
-    required_fields = ['numero_control', 'nombre_completo', 'email', 'password', 'phone_number']
+    required_fields = ['numero_control', 'nombre_completo', 'email', 'password', 'phone_number', 'clave_carrera']
     if not all(field in data for field in required_fields):
         return jsonify({"error": "Missing required fields"}), 400
 
@@ -23,6 +23,7 @@ def signup():
     email = data['email']
     password = data['password']
     phone_number = data['phone_number']
+    clave_carrera = data['clave_carrera']
 
     if '@' not in email:
         return jsonify({"error": "Invalid email format"}), 400
@@ -30,7 +31,7 @@ def signup():
     if len(password) < 8:
         return jsonify({"error": "Password must be at least 8 characters"}), 400
 
-    result, status = auth_service.signup(numero_control, nombre_completo, email, password, phone_number)
+    result, status = auth_service.signup(numero_control, nombre_completo, email, password, phone_number, clave_carrera)
     return jsonify(result), status
 
 
