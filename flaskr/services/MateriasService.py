@@ -35,7 +35,9 @@ class MateriasService:
                 Materias.nombre_materia,
                 Materias.creditos,
                 Materias.horas_semana,
-            ).all()
+            )
+            .filter(Materias.clave_carrera == clave_carrera)
+            .all()
         )
 
         return [
