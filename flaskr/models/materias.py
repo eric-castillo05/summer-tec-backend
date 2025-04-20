@@ -7,3 +7,4 @@ class Materias(db.Model):
     nombre_materia = db.Column(db.String(50), nullable=False)
     creditos = db.Column(db.Integer, nullable=False)
     horas_semana = db.Column(db.Integer, nullable=False)
+    tronco_comun = db.Column(db.Boolean, nullable=False)
