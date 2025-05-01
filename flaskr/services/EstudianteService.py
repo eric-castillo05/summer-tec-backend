@@ -1,9 +1,9 @@
 from datetime import datetime
-from flaskr.models.materias_propuestas import Materias_Propuestas
 from flaskr.models.estudiante import Estudiante
 from flaskr.models.materias_propuestas import Materias_Propuestas
-from flaskr.models import RolesEnum, Registro, StatusEnum, Usuarios
+from flaskr.models import RolesEnum, Registro, StatusEnum, Materias, Docente, Usuarios, Edificios, Horario, Aula
 from flaskr.utils.db import db
+
 
 
 class EstudianteService:
@@ -99,4 +99,49 @@ class EstudianteService:
 
         return estudiantes_data
 
+    def obtener_mis_grupos(self, estudiante_id) :
+        materias = (
+            db.session.query(
+                Materias.horas_semana,
+                Materias.creditos,
+                Materias_Propuestas.turno,
+                Materias_Propuestas.id_materia_propuesta,
+                Docente.nombre_completo.label('profesor'),
+                Materias.nombre_materia,
+                Materias.clave_materia,
+                Materias.clave_carrera,
+                Usuarios.nombre_completo,
+                Edificios.numero_edificio.label('edificio'),
+                Materias_Propuestas.status
+            )
+            .join(Registro, Registro.materia_propuesta_id == Materias_Propuestas.id_materia_propuesta)
+            .join(Materias, Materias_Propuestas.materia_id == Materias.clave_materia)
+            .outerjoin(Docente, Materias_Propuestas.docente == Docente.email)
+            .join(Usuarios, Materias_Propuestas.user_id == Usuarios.email)
+            .outerjoin(Horario, Horario.materia_propuesta_id == Materias_Propuestas.id_materia_propuesta)
+            .outerjoin(Aula, Horario.aula_id == Aula.aula_id)
+            .outerjoin(Edificios, Aula.edificio_id == Edificios.numero_edificio)
+            .filter(Registro.estudiante_id == estudiante_id)
+            .all()
+        )
+        if not materias:
+            return {"error": "No estas inscrito en esta materia", "status": 404}
+        result = [
+            {
+                "horas_semana": m.horas_semana,
+                "creditos": m.creditos,
+                "turno": m.turno.value if m.turno else None,
+                "id_materia_propuesta": m.id_materia_propuesta,
+                "profesor": m.profesor,
+                "nombre_materia": m.nombre_materia,
+                "clave_materia": m.clave_materia,
+                "clave_carrera": m.clave_carrera,
+                "nombre_usuario": m.nombre_completo,
+                "edificio": m.edificio,
+                "status": m.status.value if m.status else None
+            }
+            for m in materias
+        ]
+
+        return {"grupos": result, "status": 200}
 

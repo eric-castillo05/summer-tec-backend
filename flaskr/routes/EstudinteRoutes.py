@@ -43,3 +43,13 @@ def obtener_inscritos(materia_propuesta_id):
     return jsonify(estudiantes), 200
 
 
+@estudiante_bp.route('/mis-grupos', methods=['GET'])
+@cross_origin(origins=Config.ROUTE, supports_credentials=True)
+@jwt_required()
+def obtener_mis_grupos():
+    data = request.get_json()
+    estudiante_id = data['estudiante_id']
+    estudiantes = estudianteService.obtener_mis_grupos(estudiante_id)
+    return jsonify(estudiantes), 200
+
+
