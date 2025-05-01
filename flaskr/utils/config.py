@@ -11,3 +11,4 @@ class Config:
     BD_NAME = os.getenv("BD_NAME")
     JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY")
     ROUTE = os.getenv("ROUTE")
+    ADMIN_USER = os.getenv("ADMIN_USER")

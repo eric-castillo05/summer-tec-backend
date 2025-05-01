@@ -1,14 +1,14 @@
 from datetime import datetime, time
 from sqlalchemy.orm import aliased
-from flaskr.models import Docente, StatusEnum, TurnoEnum, RolesEnum, Registro, Horario, Edificios, Usuarios, Carreras
+from flaskr.utils import Config
+from flaskr.models import Docente, StatusEnum, TurnoEnum, RolesEnum, Horario, Edificios, Usuarios, Carreras, \
+    Notificaciones, NotificacionesEnum
+from flaskr.routes.NotificacionesRoute import notificacionesService
 from flaskr.services import EstudianteService
 from flaskr.utils.db import db
 from flaskr.models.materias_propuestas import Materias_Propuestas
 from flaskr.models.materias import Materias
 from flaskr.models.aulas import Aula
-from flaskr.models.coordinadores import Coordinadores
-from flaskr.models.estudiante import Estudiante
-from flaskr.models.admin import Admin
 from flaskr.models.horario import DiaSemanaEnum
 
 
@@ -83,6 +83,7 @@ class MateriasPropuestasService:
             if not result.get("can_create", False):
                 return {"error": result.get("message", "Se ha alcanzado el límite de propuestas"), "status": 400}
 
+
         try:
             new_materia = Materias_Propuestas(
                 user_id=user_id,
@@ -97,6 +98,18 @@ class MateriasPropuestasService:
 
             db.session.add(new_materia)
             db.session.flush()
+
+            data = {
+                "tipo": NotificacionesEnum.NUEVO_GRUPO.name,
+                "creador_grupo_id": user_id,
+                "usuario_id": user_id,
+                "tipo_usuario":usuario.rol.name,
+                "materia_propuesta_id": new_materia.id_materia_propuesta
+            }
+            notifiaciones_result = notificacionesService.create_notificacion(data)
+            if notifiaciones_result['status'] != 201:
+                db.session.rollback()
+
 
             saved_horarios = []
             horarios = data.get("horario", [])
@@ -142,7 +155,7 @@ class MateriasPropuestasService:
 
     def update_materia_propuesta(self, id_materia_propuesta, data):
         materia = Materias_Propuestas.query.get(id_materia_propuesta)
-
+        id_usuario = Materias_Propuestas.query.get(id_materia_propuesta).user_id
         if not materia:
             return {"error": "Materia propuesta no encontrada", "status": 404}
 
@@ -153,6 +166,17 @@ class MateriasPropuestasService:
             materia.status = StatusEnum(data["status"])
         if "docente" in data:
             materia.docente = data["docente"]
+
+        data = {
+            "tipo": NotificacionesEnum.GRUPO_ACTUALIZADO.name,
+            "creador_grupo_id": data['user_id'],
+            "usuario_id": id_usuario,
+            "tipo_usuario": data['role'],
+            "materia_propuesta_id": id_materia_propuesta
+        }
+        notifiaciones_result = notificacionesService.create_notificacion(data)
+        if notifiaciones_result['status'] != 201:
+            db.session.rollback()
 
         # Actualizar horarios si se proporcionan
         if "horarios" in data:
@@ -174,12 +198,29 @@ class MateriasPropuestasService:
         db.session.commit()
         return {"message": "Materia propuesta actualizada exitosamente"}
 
-    def delete_materia_propuesta(self, id_materia_propuesta):
+    def delete_materia_propuesta(self, id_materia_propuesta, data):
         materia = Materias_Propuestas.query.get(id_materia_propuesta)
-
+        print(id_materia_propuesta)
         if not materia:
             return {"error": "Materia propuesta no encontrada", "status": 404}
-
+        modificador_id = data.get("user_id")
+        role = data.get("role")
+        if modificador_id and not Usuarios.query.get(modificador_id):
+            return {"error": "Usuario modificador no encontrado", "status": 404}
+        if role not in ["COORDINADOR", "ADMIN"]:
+            return {"error": "No autorizado. Solo coordinadores o administradores pueden eliminar", "status": 403}
+        creador_id = materia.user_id
+        creador = Usuarios.query.get(creador_id)
+        notificacion_data = {
+            "tipo": NotificacionesEnum.GRUPO_CANCELADO.name,
+            "creador_grupo_id": modificador_id,
+            "usuario_id": creador_id,
+            "tipo_usuario": creador.rol.name,
+            "materia_propuesta_id": id_materia_propuesta
+        }
+        notificacion_result = notificacionesService.create_notificacion(notificacion_data)
+        if notificacion_result["status"] != 201:
+            db.session.rollback()
         db.session.delete(materia)
         db.session.commit()
         return {"message": "Materia propuesta eliminada correctamente"}

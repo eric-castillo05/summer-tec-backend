@@ -14,3 +14,5 @@ from .usuarios import Usuarios
 from .admin import Admin
 from .registro import Registro
 from .horario import Horario
+from .enums import NotificacionesEnum
+from .notificaciones import Notificaciones

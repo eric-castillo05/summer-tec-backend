@@ -1,8 +1,7 @@
 from flask import Blueprint, jsonify, request
 from flask_cors import cross_origin
-from flask_jwt_extended import jwt_required, get_jwt
-
-from flaskr.models import Horario, Materias_Propuestas, horario
+from flask_jwt_extended import jwt_required, get_jwt, get_jwt_identity
+from flaskr.models import Horario, Materias_Propuestas
 from flaskr.utils import Config
 from flaskr.services.MateriasPropuestasService import MateriasPropuestasService
 
@@ -42,13 +41,17 @@ def create_materia_propuesta():
 @jwt_required()
 def update_materia_propuesta(id_materia_propuesta):
     claims = get_jwt()
+    user_id = get_jwt_identity()
     if claims.get("role") not in ["COORDINADOR", "ADMIN"]:
         return jsonify({"error": "No autorizado. Solo coordinadores o administradores pueden modificar."}), 403
 
     data = request.get_json()
     if not data:
         return jsonify({"error": "No se recibieron datos para actualizar"}), 400
-
+    data.update({
+        "user_id": user_id,
+        "role": claims.get("role")
+    })
     response = materiasPropuestasService.update_materia_propuesta(id_materia_propuesta, data)
     status_code = response.pop("status", 200) if isinstance(response, dict) else 200
 
@@ -60,10 +63,14 @@ def update_materia_propuesta(id_materia_propuesta):
 @jwt_required()
 def delete_materia_propuesta(id_materia_propuesta):
     claims = get_jwt()
+    user_id = get_jwt_identity()
     if claims.get("role") not in ["COORDINADOR", "ADMIN"]:
         return jsonify({"error": "No autorizado. Solo coordinadores o administradores pueden eliminar."}), 403
-
-    response = materiasPropuestasService.delete_materia_propuesta(id_materia_propuesta)
+    data = {
+        "user_id": user_id,
+        "role": claims.get("role")
+    }
+    response = materiasPropuestasService.delete_materia_propuesta(id_materia_propuesta, data)
     status_code = response.pop("status", 200) if isinstance(response, dict) else 200
 
     return jsonify(response), status_code
