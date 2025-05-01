@@ -1,16 +1,17 @@
 from flask import Flask
 from flask_cors import CORS
 from flask_migrate import Migrate
-
 from flaskr.routes.AuthRoutes import auth_bp
 from flaskr.routes.DocentesRoutes import docentes_bp
-
 from flaskr.routes.EstudinteRoutes import estudiante_bp
 from flaskr.routes.MateriasPropuestasRoutes import materias_propuestas_bp
 from flaskr.routes.MateriasRoute import materias_bp
+from flaskr.routes.NotificacionesRoute import notificaciones_bp
 from flaskr.utils.JWT import JWT
 from flaskr.utils.config import Config
 from flaskr.utils.db import Database, db
+
+
 migrate = Migrate()
 
 def create_app():
@@ -26,6 +27,7 @@ def create_app():
     app.register_blueprint(materias_bp, url_prefix='/materias')
     app.register_blueprint(estudiante_bp, url_prefix='/estudiante')
     app.register_blueprint(docentes_bp, url_prefix='/docente')
+    app.register_blueprint(notificaciones_bp, url_prefix='/notificaciones')
 
 
     return app
