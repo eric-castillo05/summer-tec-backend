@@ -83,6 +83,5 @@ class AuthService:
                 "nombre_completo": user.nombre_completo,
                 "email": user.email,
                 "role": role,
-                "user_type": user_type
             }
         }, 200
