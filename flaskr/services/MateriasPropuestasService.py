@@ -174,7 +174,6 @@ class MateriasPropuestasService:
             "tipo_usuario": data['role'],
             "materia_propuesta_id": id_materia_propuesta
         }
-        print(data)
         notifiaciones_result = notificacionesService.create_notificacion(data)
         if notifiaciones_result['status'] != 201:
             db.session.rollback()

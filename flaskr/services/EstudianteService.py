@@ -1,7 +1,9 @@
 from datetime import datetime
 from flaskr.models.estudiante import Estudiante
 from flaskr.models.materias_propuestas import Materias_Propuestas
-from flaskr.models import RolesEnum, Registro, StatusEnum, Materias, Docente, Usuarios, Edificios, Horario, Aula
+from flaskr.models import RolesEnum, Registro, StatusEnum, Materias, Docente, Usuarios, Edificios, Horario, Aula, \
+    Notificaciones, estudiante, NotificacionesEnum
+from flaskr.routes.NotificacionesRoute import notificacionesService
 from flaskr.utils.db import db
 
 
@@ -51,6 +53,18 @@ class EstudianteService:
         # Verificar cupo
         if materia.cupo <= 0:
             return {"error": "No hay cupo disponible en esta materia", "status": 400}
+
+        if materia.cupo == 30:
+            data = {
+                "tipo": NotificacionesEnum.GRUPO_ACTUALIZADO.name,
+                "creador_grupo_id": estudiante_id,
+                "usuario_id": estudiante_id,
+                "tipo_usuario": RolesEnum.ESTUDIANTE.name,
+                "materia_propuesta_id": materia_propuesta_id,
+            }
+            notificacion_result = notificacionesService.create_notificacion(data)
+            if notificacion_result["status"] != 201:
+                db.session.rollback()
 
         if existe:
             return {"error": "Ya estás inscrito en esta materia", "status": 400}
