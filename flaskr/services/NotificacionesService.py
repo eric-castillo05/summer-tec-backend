@@ -8,12 +8,13 @@ class NotificacionesService:
         pass
 
     def create_notificacion(self, data):
+        print("Datos recibidos en create_notificacion:", data)
         tipo = data.get('tipo')
         creador_grupo_id = data.get('creador_grupo_id')
         usuario_id = data.get('usuario_id')
         tipo_usuario = data.get('tipo_usuario')
         materia_propuesta_id = data.get('materia_propuesta_id')
-
+        print(materia_propuesta_id)
         if not tipo or tipo not in NotificacionesEnum.__members__:
             return {"error": "Tipo de notificación inválido", "status": 400}
         if not creador_grupo_id or not Usuarios.query.get(creador_grupo_id):
@@ -30,7 +31,7 @@ class NotificacionesService:
             tipo_usuario=RolesEnum[tipo_usuario],
             materia_propuesta_id=materia_propuesta_id,
             seen=False,
-            fecha_creacion=datetime.now()
+            fecha_creacion=datetime.utcnow()
         )
 
         db.session.add(notificacion)

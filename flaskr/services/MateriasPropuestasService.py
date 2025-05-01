@@ -199,12 +199,29 @@ class MateriasPropuestasService:
         db.session.commit()
         return {"message": "Materia propuesta actualizada exitosamente"}
 
-    def delete_materia_propuesta(self, id_materia_propuesta):
+    def delete_materia_propuesta(self, id_materia_propuesta, data):
         materia = Materias_Propuestas.query.get(id_materia_propuesta)
-
+        print(id_materia_propuesta)
         if not materia:
             return {"error": "Materia propuesta no encontrada", "status": 404}
-
+        modificador_id = data.get("user_id")
+        role = data.get("role")
+        if modificador_id and not Usuarios.query.get(modificador_id):
+            return {"error": "Usuario modificador no encontrado", "status": 404}
+        if role not in ["COORDINADOR", "ADMIN"]:
+            return {"error": "No autorizado. Solo coordinadores o administradores pueden eliminar", "status": 403}
+        creador_id = materia.user_id
+        creador = Usuarios.query.get(creador_id)
+        notificacion_data = {
+            "tipo": NotificacionesEnum.GRUPO_CANCELADO.name,
+            "creador_grupo_id": modificador_id,
+            "usuario_id": creador_id,
+            "tipo_usuario": creador.rol.name,
+            "materia_propuesta_id": id_materia_propuesta
+        }
+        notificacion_result = notificacionesService.create_notificacion(notificacion_data)
+        if notificacion_result["status"] != 201:
+            db.session.rollback()
         db.session.delete(materia)
         db.session.commit()
         return {"message": "Materia propuesta eliminada correctamente"}
