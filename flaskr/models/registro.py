@@ -9,4 +9,3 @@ class Registro(db.Model):
     materia_propuesta_id = db.Column(db.Integer, db.ForeignKey('materias_propuestas.id_materia_propuesta'), nullable=False)
     fecha_inscripcion = db.Column(db.DateTime, nullable=False)
     estudiante = db.relationship('Estudiante', backref='registros')
-    materia_propuesta = db.relationship('Materias_Propuestas', backref='registros')
