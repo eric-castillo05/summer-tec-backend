@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify, request
 from flask_cors import cross_origin
-from flask_jwt_extended import jwt_required, get_jwt_identity
+from flask_jwt_extended import jwt_required, get_jwt_identity, get_jwt
 from flaskr.utils import Config
 from flaskr.services.NotificacionesService import NotificacionesService
 
@@ -16,9 +16,22 @@ def get_notificaciones(usuario_id):
     if current_user != usuario_id:
         return jsonify({"error": "No autorizado", "status": 403}), 403
 
-    seen = request.args.get('seen', default=None, type=lambda v: v.lower() == 'true')
-    result = notificacionesService.get_notificaciones(usuario_id, seen)
+    result = notificacionesService.get_notificaciones(usuario_id)
     return jsonify(result), result['status']
+
+
+
+@notificaciones_bp.route('/get-all-notifications', methods=['GET'])
+@cross_origin(origins=Config.ROUTE, supports_credentials=True)
+@jwt_required()
+def get_notificaciones_all():
+    claims = get_jwt()
+    if claims.get("role") not in ["COORDINADOR", "ADMIN"]:
+        return jsonify({"error": "No autorizado. Solo coordinadores o administradores pueden eliminar."}), 403
+    current_user = get_jwt_identity()
+    result = notificacionesService.get_notificaciones_all(current_user)
+    return jsonify(result), result['status']
+
 
 @notificaciones_bp.route('/create-notification', methods=['POST'])
 @cross_origin(origins=Config.ROUTE, supports_credentials=True)

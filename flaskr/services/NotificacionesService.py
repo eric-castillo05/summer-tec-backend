@@ -53,7 +53,33 @@ class NotificacionesService:
                 "id_notificacion": n.id_notificacion,
                 "tipo": n.tipo.value,
                 "creador_grupo": n.creador.nombre_completo,
-                "hora": n.hora.isoformat(),
+                "hora": n.fecha_creacion.isoformat(),
+                "usuario_id": n.usuario_id,
+                "tipo_usuario": n.tipo_usuario.value,
+                "seen": n.seen,
+                "materia_propuesta_id": n.materia_propuesta_id
+            }
+            for n in notificaciones
+        ]
+
+        return {"notificaciones": result, "status": 200}
+
+
+    def get_notificaciones_all(self, usuario_id):
+        if not Usuarios.query.get(usuario_id):
+            return {"error": "Usuario no encontrado", "status": 404}
+
+        notificaciones = Notificaciones.query.all()
+
+        if not notificaciones:
+            return {"message": "No hay notificaciones", "notificaciones": [], "status": 404}
+
+        result = [
+            {
+                "id_notificacion": n.id_notificacion,
+                "tipo": n.tipo.value,
+                "creador_grupo": n.creador.nombre_completo,
+                "hora": n.fecha_creacion.isoformat(),
                 "usuario_id": n.usuario_id,
                 "tipo_usuario": n.tipo_usuario.value,
                 "seen": n.seen,
