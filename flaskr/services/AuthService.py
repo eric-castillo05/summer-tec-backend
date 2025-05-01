@@ -72,7 +72,6 @@ class AuthService:
             identity=identity,
             additional_claims={
                 "role": role,
-                "user_type": user_type
             },
             expires_delta=timedelta(minutes=15)
         )
