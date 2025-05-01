@@ -17,6 +17,8 @@ class Materias_Propuestas(db.Model):
 
     horarios = db.relationship('Horario', backref='materia_propuesta', lazy='joined',
                                cascade="all, delete-orphan")
+    registros = db.relationship('Registro', backref='materia_propuesta', lazy='joined',
+                               cascade="all, delete-orphan")
     materia = db.relationship('Materias', foreign_keys=[materia_id], lazy='joined')
     docente_rel = db.relationship('Docente', foreign_keys=[docente], lazy='joined')
     usuario = db.relationship('Usuarios', backref='materias_propuestas')
