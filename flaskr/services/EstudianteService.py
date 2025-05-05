@@ -108,6 +108,7 @@ class EstudianteService:
                 estudiantes_data.append({
                     "nombre_completo": estudiante.nombre_completo,
                     "email": estudiante.email,
+                    "carrera": estudiante.clave_carrera,
                     "fecha_inscripcion": reg.fecha_inscripcion.strftime('%Y-%m-%d %H:%M:%S')
                 })
 
