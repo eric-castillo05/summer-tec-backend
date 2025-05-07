@@ -19,7 +19,6 @@ class AuthService:
         if Estudiante.query.filter_by(numero_control=numero_control).first():
             return {"error": "Control number already registered"}, 400
 
-        # Create new user
         hashed_password = generate_password_hash(password)
         new_user = Estudiante(
             numero_control=numero_control,
@@ -48,20 +47,21 @@ class AuthService:
 
     def login(self, email, password):
         user = Estudiante.query.filter_by(email=email).first()
-        user_type = "estudiante"
+        clave_carrera = None
 
-        if not user:
+        if user:
+            clave_carrera = user.clave_carrera
+
+        else:
             user = Coordinadores.query.filter_by(email=email).first()
-            user_type = "coordinador"
 
+            if user:
+                clave_carrera = user.clave_carrera
+            else:
+                user = Admin.query.filter_by(email=email).first()
 
-        if not user:
-            user = Admin.query.filter_by(email=email).first()
-            user_type = "admin"
-
-
-        if not user or not check_password_hash(user.password, password):
-            return {"error": "Invalid email or password"}, 401
+            if not user or not check_password_hash(user.password, password):
+                return {"error": "Invalid email or password"}, 401
 
 
         role = user.rol.value if hasattr(user, 'rol') and user.rol else "unknown"
@@ -82,5 +82,6 @@ class AuthService:
                 "nombre_completo": user.nombre_completo,
                 "email": user.email,
                 "role": role,
+                "carrera": clave_carrera,
             }
         }, 200
