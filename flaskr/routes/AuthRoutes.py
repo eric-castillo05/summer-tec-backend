@@ -73,7 +73,7 @@ def change_password(data):
 @cross_origin(origins=Config.ROUTE, supports_credentials=True)
 def reset_password(token):
     if request.method == 'GET':
-        return redirect(f'{Config.ROUTE}/reset-password/{token}')
+        return redirect(f'{Config.ROUTE}/change-password/{token}')
 
     try:
         data = request.get_json()
