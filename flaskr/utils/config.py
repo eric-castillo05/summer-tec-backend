@@ -12,3 +12,4 @@ class Config:
     JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY")
     ROUTE = os.getenv("ROUTE")
     ADMIN_USER = os.getenv("ADMIN_USER")
+    SECRET_KEY = os.getenv("SECRET_KEY")

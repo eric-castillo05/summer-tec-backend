@@ -1,4 +1,4 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, redirect
 from flask_cors import cross_origin
 from flaskr.services import AuthService
 from flaskr.utils.config import Config
@@ -52,3 +52,35 @@ def login():
 
     result, status = auth_service.login(email, password)
     return jsonify(result), status
+
+
+@auth_bp.route('/recover-password', methods=['PUT'])
+@cross_origin(origins=Config.ROUTE, supports_credentials=True)
+def change_password(data):
+    try:
+        data - request.get_json()
+    except Exception:
+        return jsonify({"error": "Invalid JSON"}), 400
+
+    email = data['email']
+    if not email:
+        return jsonify({"error": "Must provide email address"}), 400
+
+    result, status = auth_service.change_password(email)
+    return jsonify(result), status
+
+@auth_bp.route('/reset-password/<token>', methods=['GET', 'POST'])
+@cross_origin(origins=Config.ROUTE, supports_credentials=True)
+def reset_password(token):
+    if request.method == 'GET':
+        return redirect(f'{Config.ROUTE}/reset-password/{token}')
+
+    try:
+        data = request.get_json()
+    except Exception as e:
+        return jsonify({"error": "Invalid JSON"}), 400
+
+    new_password = data['new_password']
+    result, status = auth_service.reset_password(token, new_password)
+    return jsonify(result), status
+

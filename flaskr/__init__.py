@@ -10,7 +10,7 @@ from flaskr.routes.NotificacionesRoute import notificaciones_bp
 from flaskr.utils.JWT import JWT
 from flaskr.utils.config import Config
 from flaskr.utils.db import Database, db
-
+from flaskr.utils.mail import mail
 
 migrate = Migrate()
 
@@ -20,8 +20,8 @@ def create_app():
     CORS(app, resources={r"/*": {"origins": Config.ROUTE}}, supports_credentials=True)
     Database().init_app(app)
     migrate.init_app(app, db)
+    mail.init_app(app)
     jwt = JWT(app)
-
     app.register_blueprint(auth_bp, url_prefix='/auth')
     app.register_blueprint(materias_propuestas_bp, url_prefix='/materias_propuestas')
     app.register_blueprint(materias_bp, url_prefix='/materias')
