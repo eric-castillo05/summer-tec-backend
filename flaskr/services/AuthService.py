@@ -95,6 +95,10 @@ class AuthService:
     def change_password(self, email):
         user = Estudiante.query.filter_by(email=email).first()
         if not user:
+            user = Coordinadores.query.filter_by(email=email).first()
+        if not user:
+            user = Admin.query.filter_by(email=email).first()
+        if not user:
             return {"error": "Email not registered"}, 400
         try:
             s = URLSafeTimedSerializer(Config.SECRET_KEY)

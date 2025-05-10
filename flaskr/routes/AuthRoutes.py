@@ -1,5 +1,8 @@
 from flask import Blueprint, request, jsonify, redirect
 from flask_cors import cross_origin
+from flask_jwt_extended import jwt_required, get_jwt_identity
+from sqlalchemy.sql.functions import current_user
+
 from flaskr.services import AuthService
 from flaskr.utils.config import Config
 
@@ -54,23 +57,28 @@ def login():
     return jsonify(result), status
 
 
-@auth_bp.route('/recover-password', methods=['PUT'])
+@auth_bp.route('/recover-password', methods=['POST'])
 @cross_origin(origins=Config.ROUTE, supports_credentials=True)
-def change_password(data):
+@jwt_required()
+def change_password():
+    current_user = get_jwt_identity()
     try:
-        data - request.get_json()
+        data = request.get_json()
     except Exception:
+        print(Exception)
         return jsonify({"error": "Invalid JSON"}), 400
 
     email = data['email']
+    if current_user != email:
+        return jsonify({"error": "Not autorized"}), 400
     if not email:
         return jsonify({"error": "Must provide email address"}), 400
 
-    result, status = auth_service.change_password(email)
-    return jsonify(result), status
+    return auth_service.change_password(email)
 
 @auth_bp.route('/reset-password/<token>', methods=['GET', 'POST'])
 @cross_origin(origins=Config.ROUTE, supports_credentials=True)
+@jwt_required()
 def reset_password(token):
     if request.method == 'GET':
         return redirect(f'{Config.ROUTE}/change-password/{token}')
@@ -81,6 +89,4 @@ def reset_password(token):
         return jsonify({"error": "Invalid JSON"}), 400
 
     new_password = data['new_password']
-    result, status = auth_service.reset_password(token, new_password)
-    return jsonify(result), status
-
+    return auth_service.reset_password(token, new_password)
