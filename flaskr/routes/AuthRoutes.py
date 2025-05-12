@@ -67,8 +67,6 @@ def change_password():
         return jsonify({"error": "Invalid JSON"}), 400
 
     email = data['email']
-    if current_user != email:
-        return jsonify({"error": "Not autorized"}), 400
     if not email:
         return jsonify({"error": "Must provide email address"}), 400
 
