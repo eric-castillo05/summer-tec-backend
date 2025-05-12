@@ -85,3 +85,17 @@ def reset_password(token):
 
     new_password = data['new_password']
     return auth_service.reset_password(token, new_password)
+
+
+@auth_bp.route('/reset-password-auth/', methods=['POST'])
+@cross_origin(origins=Config.ROUTE, supports_credentials=True)
+@jwt_required()
+def reset_password_auth():
+    try:
+        data = request.get_json()
+    except Exception as e:
+        return jsonify({"error": "Invalid JSON"}), 400
+
+    new_password = data['new_password']
+    email = data['email']
+    return auth_service.reset_password_auth(email, new_password)

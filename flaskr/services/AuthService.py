@@ -143,3 +143,19 @@ class AuthService:
         except Exception as e:
             db.session.rollback()
             return jsonify({"message": "Failed to reset password. Please try again.", "success": False}), 500
+
+    def reset_password_auth(self, email, new_password):
+        if not new_password or len(new_password) < 8:
+            return jsonify({"message": "Password must be at least 8 characters", "success": False}), 400
+
+        user = Usuarios.query.filter_by(email=email).first()
+        if not user:
+            return jsonify({"message": "User not found", "success": False}), 404
+
+        try:
+            user.password = generate_password_hash(new_password)
+            db.session.commit()
+            return jsonify({"message": "Password reset successful! Redirecting to login...", "success": True}), 200
+        except Exception as e:
+            db.session.rollback()
+            return jsonify({"message": "Failed to reset password. Please try again.", "success": False}), 500
