@@ -59,7 +59,6 @@ def login():
 
 @auth_bp.route('/recover-password', methods=['POST'])
 @cross_origin(origins=Config.ROUTE, supports_credentials=True)
-@jwt_required()
 def change_password():
     current_user = get_jwt_identity()
     try:
@@ -78,7 +77,6 @@ def change_password():
 
 @auth_bp.route('/reset-password/<token>', methods=['GET', 'POST'])
 @cross_origin(origins=Config.ROUTE, supports_credentials=True)
-@jwt_required()
 def reset_password(token):
     if request.method == 'GET':
         return redirect(f'{Config.ROUTE}/change-password/{token}')
