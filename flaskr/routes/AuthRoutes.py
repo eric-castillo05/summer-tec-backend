@@ -60,7 +60,6 @@ def login():
 @auth_bp.route('/recover-password', methods=['POST'])
 @cross_origin(origins=Config.ROUTE, supports_credentials=True)
 def change_password():
-    current_user = get_jwt_identity()
     try:
         data = request.get_json()
     except Exception:
