@@ -36,7 +36,7 @@ class NotificacionesService:
 
         db.session.add(notificacion)
         db.session.commit()
-        return {'message': 'Notificacion creada correctamente', 'status': 200}
+        return {'message': 'Notificacion creada correctamente', 'status': 201}
 
 
     def get_notificaciones(self, usuario_id):

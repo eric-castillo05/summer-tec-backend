@@ -167,14 +167,14 @@ class MateriasPropuestasService:
         if "docente" in data:
             materia.docente = data["docente"]
 
-        data = {
+        data_horario = {
             "tipo": NotificacionesEnum.GRUPO_ACTUALIZADO.name,
             "creador_grupo_id": data['user_id'],
             "usuario_id": id_usuario,
             "tipo_usuario": data['role'],
             "materia_propuesta_id": id_materia_propuesta
         }
-        notifiaciones_result = notificacionesService.create_notificacion(data)
+        notifiaciones_result = notificacionesService.create_notificacion(data_horario)
         if notifiaciones_result['status'] != 201:
             db.session.rollback()
 
