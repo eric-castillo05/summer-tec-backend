@@ -78,7 +78,7 @@ class AuthService:
             additional_claims={
                 "role": role,
             },
-            expires_delta=timedelta(minutes=15)
+            expires_delta=timedelta(minutes=60)
         )
 
         return {
